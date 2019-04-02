@@ -1,6 +1,7 @@
 package ba.unsa.etf.rma.klase;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Pitanje {
     private String naziv;
@@ -51,6 +52,7 @@ public class Pitanje {
     }
 
     public ArrayList<String> dajRandomOdgovore(){
-        return null;
+        Collections.shuffle(odgovori);
+        return odgovori;
     }
 }
