@@ -20,7 +20,7 @@
         app:layout_constraintVertical_bias="0.0">
 
         <ImageView
-            android:id="@+id/blueDot"
+            android:id="@+id/slikaKviza"
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_alignParentStart="true"
@@ -40,7 +40,7 @@
             android:id="@+id/space"
             android:layout_width="15dp"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/blueDot" />
+            android:layout_toEndOf="@+id/slikaKviza" />
 
         <TextView
             android:id="@+id/nazivKviza"

@@ -1,4 +1,4 @@
-package ba.unsa.etf.rma;
+package ba.unsa.etf.rma.adapteri;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,11 +12,12 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.Kviz;
 
 public class ListaKvizovaAdapter extends BaseAdapter {
     private Activity activity;
-    private ArrayList lista; //todo staviti ArrayList<Kviz>?
+    private ArrayList lista;
     private static LayoutInflater inflater = null;
     public Resources resources;
     Kviz kviz = null;
@@ -45,39 +46,37 @@ public class ListaKvizovaAdapter extends BaseAdapter {
         return position;
     }
 
+    public static class ViewHolder {
+        public TextView nazivKviza;
+        public ImageView slikaKviza;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View vi = convertView;
         ViewHolder holder;
+
         if (convertView == null) {
             vi = inflater.inflate(R.layout.element_liste, null);
             holder = new ViewHolder();
-            holder.icon = (ImageView) vi.findViewById(R.id.icon);
-            //holder.nazivMuzicara = (TextView) vi.findViewById(R.id.nazivMuzicara);
-            //holder.zanr = (TextView) vi.findViewById(R.id.zanr);
+            holder.slikaKviza = (ImageView) vi.findViewById(R.id.slikaKviza);
+            holder.nazivKviza = (TextView) vi.findViewById(R.id.nazivKviza);
             vi.setTag(holder);
-        }
-        else {
+        } else {
             holder = (ViewHolder) vi.getTag();
         }
         if (lista.size() <= 0) {
-            //holder.nazivKviza.setText(R.string.no_info);
-            //holder.zanr.setText(R.string.no_info);
-        }
-        else {
+            holder.nazivKviza.setText("No Data");
+        } else {
             kviz = null;
             kviz = (Kviz) lista.get(position);
+
             holder.nazivKviza.setText(kviz.getNaziv());
-            //holder.icon.setImageResource(resources.getIdentifier
-            //     ("ba.unsa.etf.rma:drawable/" + muzicar.getSlikaZanra(),
-            //  null, null));
+            holder.slikaKviza.setImageResource(resources.getIdentifier
+                    ("ba.unsa.etf.rma:drawable/blue_dot",
+                            null, null));
         }
         return vi;
-    }
-
-    public static class ViewHolder {
-        public TextView nazivKviza;
-        public ImageView icon;
     }
 
 }
