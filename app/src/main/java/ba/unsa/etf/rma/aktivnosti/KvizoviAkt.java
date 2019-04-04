@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 
@@ -24,29 +25,35 @@ public class KvizoviAkt extends AppCompatActivity {
     private ListaKvizovaAdapter adapter;
     private ArrayList<Kviz> kvizovi = new ArrayList<>();
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.kvizovi_akt);
 
         napuni();
-
-        spiner = (Spinner)findViewById(R.id.spPostojeceKategorije);
+        spiner = (Spinner) findViewById(R.id.spPostojeceKategorije);
         lista = (ListView) findViewById(R.id.lvKvizovi);
 
         adapter = new ListaKvizovaAdapter(this, kvizovi, getResources());
         lista.setAdapter(adapter);
+
+        String[] arraySpinner = new String[]{"Nauka", "Sport", "Jezici"};
+        Spinner s = (Spinner) findViewById(R.id.spPostojeceKategorije);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, arraySpinner);
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        s.setAdapter(adapter2);
     }
 
-    private void napuni(){
+    private void napuni() {
         ArrayList<Pitanje> pitanja = new ArrayList<>();
         Kategorija kategorija = new Kategorija();
 
         Kviz a = new Kviz("Kviz 1", pitanja, kategorija);
         Kviz b = new Kviz("Kviz 2", pitanja, kategorija);
+        Kviz c = new Kviz ("Kviz 3", pitanja, kategorija);
         kvizovi.add(a);
         kvizovi.add(b);
+        kvizovi.add(c);
     }
 
 }

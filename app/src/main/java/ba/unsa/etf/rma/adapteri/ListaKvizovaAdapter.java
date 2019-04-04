@@ -3,6 +3,7 @@ package ba.unsa.etf.rma.adapteri;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.Kviz;
 
-public class ListaKvizovaAdapter extends BaseAdapter {
+public class ListaKvizovaAdapter extends BaseAdapter implements View.OnClickListener {
     private Activity activity;
     private ArrayList lista;
     private static LayoutInflater inflater = null;
@@ -46,9 +47,13 @@ public class ListaKvizovaAdapter extends BaseAdapter {
         return position;
     }
 
+    @Override
+    public void onClick(View v) {
+    }
+
     public static class ViewHolder {
-        public TextView nazivKviza;
         public ImageView slikaKviza;
+        public TextView nazivKviza;
     }
 
     @Override
@@ -57,7 +62,7 @@ public class ListaKvizovaAdapter extends BaseAdapter {
         ViewHolder holder;
 
         if (convertView == null) {
-            vi = inflater.inflate(R.layout.element_liste, null);
+            vi = inflater.inflate(R.layout.el_liste_kviz, null);
             holder = new ViewHolder();
             holder.slikaKviza = (ImageView) vi.findViewById(R.id.slikaKviza);
             holder.nazivKviza = (TextView) vi.findViewById(R.id.nazivKviza);
@@ -65,16 +70,22 @@ public class ListaKvizovaAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) vi.getTag();
         }
+
         if (lista.size() <= 0) {
             holder.nazivKviza.setText("No Data");
         } else {
             kviz = null;
             kviz = (Kviz) lista.get(position);
 
-            holder.nazivKviza.setText(kviz.getNaziv());
-            holder.slikaKviza.setImageResource(resources.getIdentifier
-                    ("ba.unsa.etf.rma:drawable/blue_dot",
-                            null, null));
+            if (position != lista.size() - 1) {
+                holder.nazivKviza.setText(kviz.getNaziv());
+                holder.slikaKviza.setImageResource(R.drawable.blue_dot);
+                //holder.slikaKviza.setImageResource(resources.getIdentifier("ba.unsa.etf.rma:drawable/blue_dot", null, null));
+            } else {
+                holder.nazivKviza.setText("Dodaj kviz");
+                holder.slikaKviza.setImageResource(R.drawable.plus);
+                //holder.slikaKviza.setImageResource(resources.getIdentifier("ba.unsa.etf.rma:drawable/plus", null, null));
+            }
         }
         return vi;
     }

@@ -33,8 +33,7 @@
             app:layout_constraintHorizontal_bias="0.106"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.981"
-            app:srcCompat="@drawable/blue_dot" />
+            app:layout_constraintVertical_bias="0.981" />
 
         <Space
             android:id="@+id/space"
