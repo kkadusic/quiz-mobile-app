@@ -3,7 +3,6 @@ package ba.unsa.etf.rma.adapteri;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,7 +61,7 @@ public class ListaKvizovaAdapter extends BaseAdapter implements View.OnClickList
         ViewHolder holder;
 
         if (convertView == null) {
-            vi = inflater.inflate(R.layout.el_liste_kviz, null);
+            vi = inflater.inflate(R.layout.element_liste, null);
             holder = new ViewHolder();
             holder.slikaKviza = (ImageView) vi.findViewById(R.id.slikaKviza);
             holder.nazivKviza = (TextView) vi.findViewById(R.id.nazivKviza);
