@@ -29,6 +29,7 @@ public class KvizoviAkt extends AppCompatActivity {
             add(new Kviz());
         }
     };
+    private ArrayList<String> kategorije;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +43,12 @@ public class KvizoviAkt extends AppCompatActivity {
         adapter = new ListaKvizovaAdapter(this, kvizovi, getResources());
         lista.setAdapter(adapter);
 
-        String[] arraySpinner = new String[]{"Nauka", "Sport", "Jezici"};
+        // SPINER
+        kategorije = napuniKategorije();
         Spinner s = (Spinner) findViewById(R.id.spPostojeceKategorije);
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, arraySpinner);
-        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        s.setAdapter(adapter2);
+        ArrayAdapter<String> adapterSpiner = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, kategorije);
+        adapterSpiner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        s.setAdapter(adapterSpiner);
 
         napuni();
 
@@ -58,6 +60,7 @@ public class KvizoviAkt extends AppCompatActivity {
                     startActivity(myIntent);
                 } else {
                     myIntent.putExtra("nekiKviz", kvizovi.get(position));
+                    myIntent.putExtra("kategorije", kategorije);
                     startActivity(myIntent);
                 }
             }
@@ -91,6 +94,14 @@ public class KvizoviAkt extends AppCompatActivity {
         kvizovi.add(kvizovi.size()-1, kviz1);
         kvizovi.add(kvizovi.size()-1, kviz2);
         kvizovi.add(kvizovi.size()-1, kviz3);
+    }
+
+    public ArrayList<String> napuniKategorije(){
+        ArrayList<String> kategorije = new ArrayList<>();
+        kategorije.add("Nauka");
+        kategorije.add("Sport");
+        kategorije.add("Jezici");
+        return kategorije;
     }
 
 }
