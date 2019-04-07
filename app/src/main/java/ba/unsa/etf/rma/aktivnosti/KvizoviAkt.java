@@ -23,8 +23,7 @@ public class KvizoviAkt extends AppCompatActivity {
     private Spinner spPostojeceKategorije;
     private ListView lista;
 
-    private static final int MY_REQUEST_CODE = 1999; // za kvizove
-    private static final int MY_REQUEST_CODE2 = 2000; // za kategorije
+    private static final int MY_REQUEST_CODE = 1000; // za kvizove
 
     private ListaKvizovaAdapter adapter;
     private ArrayList<Kviz> kvizovi = new ArrayList<Kviz>() {
@@ -34,6 +33,10 @@ public class KvizoviAkt extends AppCompatActivity {
     };
     private ArrayList<Kategorija> kategorije;
     private ArrayAdapter<Kategorija> adapterSpiner;
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,15 +60,7 @@ public class KvizoviAkt extends AppCompatActivity {
         spPostojeceKategorije.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
-                if (position == spPostojeceKategorije.getCount() - 1) {
-                    Intent myIntent = new Intent(KvizoviAkt.this, DodajKategorijuAkt.class);
-                    myIntent.putExtra("nekaKategorija", (Parcelable) new Kategorija("", ""));
-                    startActivityForResult(myIntent, MY_REQUEST_CODE2);
-                }
-                else {
-                    //KvizoviAkt.this.adapter.getFilter().filter(dajImenaKvizova());
-                    Toast.makeText(getBaseContext(), kategorije.get(position).getNaziv(), Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(getBaseContext(), kategorije.get(position).getNaziv(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -73,8 +68,6 @@ public class KvizoviAkt extends AppCompatActivity {
 
             }
         });
-
-
 
 
         napuniListuKvizova();
@@ -144,10 +137,10 @@ public class KvizoviAkt extends AppCompatActivity {
 
     public ArrayList<Kategorija> napuniKategorijeNew(){
         ArrayList<Kategorija> kategorije = new ArrayList<>();
-        kategorije.add(new Kategorija("Nauka", "1"));
-        kategorije.add(new Kategorija("Sport", "2"));
+        kategorije.add(new Kategorija("Svi", "1"));
+        kategorije.add(new Kategorija("Nauka", "2"));
         kategorije.add(new Kategorija("Jezici", "3"));
-        kategorije.add(new Kategorija("Nova kategorija", "4"));
+        kategorije.add(new Kategorija("Sport", "4"));
         return kategorije;
     }
 
@@ -157,7 +150,9 @@ public class KvizoviAkt extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == MY_REQUEST_CODE && resultCode == RESULT_OK) {
             Bundle bundle = intent.getExtras();
+
             Kviz kviz = (Kviz) bundle.getParcelable("nekiKviz");
+            kategorije = bundle.getParcelableArrayList("kategorije");
 
 
             Integer pos = bundle.getInt("p");
@@ -167,14 +162,9 @@ public class KvizoviAkt extends AppCompatActivity {
                 Kviz k = kvizovi.get(pos);
                 kvizovi.remove(k);
             }
-            //kvizovi.add(kvizovi.size() - 1, kviz);
             kvizovi.add(pos, kviz);
+
             adapter.notifyDataSetChanged();
-        }
-        if (requestCode == MY_REQUEST_CODE2 && resultCode == RESULT_OK){
-            Bundle bundle = intent.getExtras();
-            Kategorija kategorija = (Kategorija) bundle.getParcelable("nekaKategorija");
-            kategorije.add(kategorije.size()-1, kategorija);
             adapterSpiner.notifyDataSetChanged();
         }
         if (resultCode == RESULT_CANCELED) {

@@ -54,7 +54,7 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
                     kategorija.setId(etIkona.getText().toString());
 
                     Intent returnIntent = new Intent();
-                    returnIntent.putExtra("nekaKategorija", (Parcelable) new Kategorija(kategorija.getNaziv(), kategorija.getId()));
+                    returnIntent.putExtra("kategorije", (Parcelable) new Kategorija(kategorija.getNaziv(), kategorija.getId()));
                     setResult(RESULT_OK, returnIntent);
                     finish();
                 } else if (etNaziv.getText().toString().isEmpty() && !etIkona.getText().toString().isEmpty()) {
