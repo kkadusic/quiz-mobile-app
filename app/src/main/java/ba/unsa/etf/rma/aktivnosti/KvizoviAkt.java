@@ -172,8 +172,8 @@ public class KvizoviAkt extends AppCompatActivity {
                 Kviz k = kvizovi.get(pos);
                 kvizovi.remove(k);
             }
-
-            kvizovi.add(kvizovi.size() - 1, kviz);
+            //kvizovi.add(kvizovi.size() - 1, kviz);
+            kvizovi.add(pos, kviz);
             adapter.notifyDataSetChanged();
         }
         if (resultCode == RESULT_CANCELED) {

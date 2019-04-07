@@ -13,6 +13,8 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.klase.Kategorija;
+import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
 
 public class DodajPitanjeAkt extends AppCompatActivity {
@@ -25,11 +27,15 @@ public class DodajPitanjeAkt extends AppCompatActivity {
 
     ArrayList<String> odgovori = new ArrayList<String>();
     private ArrayAdapter<String> adapterOdgovori;
+    private Pitanje pitanje;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dodaj_pitanje_akt);
+
+        Bundle bundle = getIntent().getExtras();
+        pitanje = (Pitanje) getIntent().getParcelableExtra("nekoPitanje");
 
         lvOdgovori = (ListView) findViewById(R.id.lvOdgovori);
         etNaziv = (EditText) findViewById(R.id.etNaziv);
@@ -60,27 +66,20 @@ public class DodajPitanjeAkt extends AppCompatActivity {
             }
         });
 
-        /*
-        btnDodajPitanje.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent myIntent = new Intent(DodajPitanjeAkt.this, DodajKvizAkt.class);
-                Pitanje p = new Pitanje(etNaziv.getText().toString(), etNaziv.getText().toString(), odgovori, "tacan");
-                myIntent.putExtra("novoPitanje", (Parcelable) p);
-                startActivity(myIntent);
-            }
-        });
-        */
 
-        /*
         btnDodajPitanje.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent myIntent = new Intent(DodajPitanjeAkt.this, DodajKategorijuAkt.class);
-                startActivity(myIntent);
+                Pitanje pitanje = new Pitanje();
+                pitanje.setNaziv(etNaziv.getText().toString());
+                pitanje.setOdgovori(odgovori);
+
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("nekoPitanje", (Parcelable) new Pitanje(pitanje.getNaziv(), "", pitanje.getOdgovori(), ""));
+                setResult(RESULT_OK, returnIntent);
+                finish();
             }
         });
-        */
 
     }
 }

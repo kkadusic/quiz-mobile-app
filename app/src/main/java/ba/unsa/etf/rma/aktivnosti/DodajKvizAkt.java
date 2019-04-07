@@ -32,6 +32,8 @@ public class DodajKvizAkt extends AppCompatActivity {
     private Spinner spKategorije;
     private Button btnDodajKviz;
 
+    private static final int MY_REQUEST_CODE = 1999;
+
     private ListaPitanjaAdapter adapterPitanja;
     private ArrayList<Pitanje> pitanja = new ArrayList<Pitanje>() {
         {
@@ -92,18 +94,6 @@ public class DodajKvizAkt extends AppCompatActivity {
         napuniMogucaPitanja();
 
 
-        /*
-        btnDodajKviz.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent myIntent = new Intent(DodajKvizAkt.this, KvizoviAkt.class);
-                Kviz k = new Kviz(etNaziv.getText().toString(), pitanja, new Kategorija());
-                myIntent.putExtra("noviKviz", (Parcelable) k);
-                startActivity(myIntent);
-            }
-        });
-        */
-
         btnDodajKviz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,9 +123,10 @@ public class DodajKvizAkt extends AppCompatActivity {
                     adapterMogucaPitanja.notifyDataSetChanged();
                     adapterPitanja.notifyDataSetChanged();
                 }
-                else {
+                else { // novo pitanje
                     Intent myIntent = new Intent(DodajKvizAkt.this, DodajPitanjeAkt.class);
-                    startActivity(myIntent);
+                    myIntent.putExtra("nekoPitanje", (Parcelable) new Pitanje("", "", new ArrayList<String>(), ""));
+                    startActivityForResult(myIntent, MY_REQUEST_CODE);
                 }
             }
         });
@@ -165,6 +156,20 @@ public class DodajKvizAkt extends AppCompatActivity {
         mogucaPitanja.add(p1);
         mogucaPitanja.add(p2);
         mogucaPitanja.add(p3);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == MY_REQUEST_CODE && resultCode == RESULT_OK) {
+            Bundle bundle = intent.getExtras();
+            Pitanje pitanje = (Pitanje) bundle.getParcelable("nekoPitanje");
+
+            pitanja.add(pitanja.size() - 1, pitanje);
+            adapterPitanja.notifyDataSetChanged();
+        }
+        if (resultCode == RESULT_CANCELED) {
+
+        }
     }
 
 }
