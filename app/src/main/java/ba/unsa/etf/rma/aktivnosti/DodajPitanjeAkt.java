@@ -53,7 +53,12 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         btnDodajOdgovor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                odgovori.add(0, etOdgovor.getText().toString());
+                if (!odgovori.isEmpty()) {
+                    odgovori.add(odgovori.size(), etOdgovor.getText().toString());
+                }
+                else {
+                    odgovori.add(0, etOdgovor.getText().toString());
+                }
                 adapterOdgovori.notifyDataSetChanged();
                 etOdgovor.setText("");
             }
@@ -62,7 +67,7 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         btnDodajTacan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                odgovori.add(0, etOdgovor.getText().toString());
+                odgovori.add(odgovori.size()-1, etOdgovor.getText().toString());
                 adapterOdgovori.notifyDataSetChanged();
                 etOdgovor.setText("");
             }

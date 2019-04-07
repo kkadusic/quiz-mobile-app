@@ -12,11 +12,9 @@ import android.widget.EditText;
 
 import com.maltaisn.icondialog.Icon;
 import com.maltaisn.icondialog.IconDialog;
-import com.maltaisn.icondialog.IconHelper;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.Kategorija;
-import ba.unsa.etf.rma.klase.Pitanje;
 
 public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback {
     private Icon[] selectedIcons;
@@ -42,7 +40,7 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
             public void onClick(View v) {
                 iconDialog.setSelectedIcons(selectedIcons);
                 iconDialog.show(getSupportFragmentManager(), "icon_dialog");
-                etIkona.setText(Integer.toString(iconDialog.getId())); // nije jos dobro
+                etIkona.setText(Integer.toString(iconDialog.getId()));
             }
         });
 
@@ -59,16 +57,13 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
                     returnIntent.putExtra("nekaKategorija", (Parcelable) new Kategorija(kategorija.getNaziv(), kategorija.getId()));
                     setResult(RESULT_OK, returnIntent);
                     finish();
-                }
-                else if (etNaziv.getText().toString().isEmpty() && !etIkona.getText().toString().isEmpty()) {
+                } else if (etNaziv.getText().toString().isEmpty() && !etIkona.getText().toString().isEmpty()) {
                     etNaziv.getBackground().setColorFilter(Color.parseColor("#6AFF0000"), PorterDuff.Mode.SRC_ATOP);
                     etIkona.getBackground().clearColorFilter();
-                }
-                else if (etIkona.getText().toString().isEmpty() && !etNaziv.getText().toString().isEmpty()){
+                } else if (etIkona.getText().toString().isEmpty() && !etNaziv.getText().toString().isEmpty()) {
                     etIkona.getBackground().setColorFilter(Color.parseColor("#6AFF0000"), PorterDuff.Mode.SRC_ATOP);
                     etNaziv.getBackground().clearColorFilter();
-                }
-                else {
+                } else {
                     etNaziv.getBackground().setColorFilter(Color.parseColor("#6AFF0000"), PorterDuff.Mode.SRC_ATOP);
                     etIkona.getBackground().setColorFilter(Color.parseColor("#6AFF0000"), PorterDuff.Mode.SRC_ATOP);
                 }
@@ -81,5 +76,8 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
     @Override
     public void onIconDialogIconsSelected(Icon[] icons) {
         selectedIcons = icons;
+        for (int i = 0; i < selectedIcons.length; i++) {
+            etIkona.setText("" + selectedIcons[i].getId());
+        }
     }
 }
