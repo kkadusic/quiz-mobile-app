@@ -35,8 +35,8 @@ public class DodajKvizAkt extends AppCompatActivity {
     private Spinner spKategorije;
     private Button btnDodajKviz;
 
-    private static final int MY_REQUEST_CODE = 1999;
-    private static final int MY_REQUEST_CODE2 = 3000;
+    private static final int MY_REQUEST_CODE = 1;
+    private static final int MY_REQUEST_CODE2 = 2;
 
     private ListaPitanjaAdapter adapterPitanja;
     private ArrayList<Pitanje> pitanja = new ArrayList<Pitanje>() {
@@ -51,12 +51,13 @@ public class DodajKvizAkt extends AppCompatActivity {
     private Integer pos;
     private Boolean novi;
     private Kviz k;
-    private ArrayList<Kategorija> kategorije = new ArrayList<>();
+    private ArrayList<Kategorija> kategorije = new ArrayList<Kategorija>() {
+        {
+            add(new Kategorija());
+        }
+    };
 
     private ArrayAdapter<Kategorija> adapterSpiner;
-
-
-
 
 
     @Override
@@ -93,15 +94,17 @@ public class DodajKvizAkt extends AppCompatActivity {
         etNaziv.setText(k.getNaziv());
 
 
-
-
-
+        Boolean ima = false;
+        for (int i = 0; i < kategorije.size(); i++) {
+            if (kategorije.get(i).getNaziv().equals("Nova kategorija")) ima = true;
+        }
+        if (!ima) kategorije.add(new Kategorija("Nova kategorija", "0"));
 
 
         spKategorije.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
-                if (position == spKategorije.getCount() - 1) {
+                if (position == kategorije.size() - 1) {
                     Intent myIntent = new Intent(DodajKvizAkt.this, DodajKategorijuAkt.class);
                     myIntent.putExtra("kategorije", (Parcelable) new Kategorija("", ""));
                     startActivityForResult(myIntent, MY_REQUEST_CODE2);
@@ -109,6 +112,7 @@ public class DodajKvizAkt extends AppCompatActivity {
 
                 }
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
 
@@ -180,9 +184,9 @@ public class DodajKvizAkt extends AppCompatActivity {
         odgovori.add("odg2");
         odgovori.add("odg3");
 
-        Pitanje p1 = new Pitanje("Moguce 1", "1+1=?", odgovori, "1");
-        Pitanje p2 = new Pitanje("Moguce 2", "2+2=?", odgovori, "2");
-        Pitanje p3 = new Pitanje("Moguce 3", "3+3=?", odgovori, "3");
+        Pitanje p1 = new Pitanje("Moguce Pitanje 1", "1+1=?", odgovori, "1");
+        Pitanje p2 = new Pitanje("Moguce Pitanje 2", "2+2=?", odgovori, "2");
+        Pitanje p3 = new Pitanje("Moguce Pitanje 3", "3+3=?", odgovori, "3");
 
         mogucaPitanja.add(p1);
         mogucaPitanja.add(p2);
@@ -197,8 +201,8 @@ public class DodajKvizAkt extends AppCompatActivity {
 
             pitanja.add(pitanja.size() - 1, pitanje);
             adapterPitanja.notifyDataSetChanged();
-
         }
+
         if (requestCode == MY_REQUEST_CODE2 && resultCode == RESULT_OK) {
             Bundle bundle = intent.getExtras();
             Kategorija kategorija = (Kategorija) bundle.getParcelable("kategorije");
@@ -206,6 +210,7 @@ public class DodajKvizAkt extends AppCompatActivity {
             kategorije.add(kategorije.size() - 1, kategorija);
             adapterSpiner.notifyDataSetChanged();
         }
+
         if (resultCode == RESULT_CANCELED) {
 
         }

@@ -23,7 +23,7 @@ public class KvizoviAkt extends AppCompatActivity {
     private Spinner spPostojeceKategorije;
     private ListView lista;
 
-    private static final int MY_REQUEST_CODE = 1000; // za kvizove
+    private static final int MY_REQUEST_CODE = 1; // za kvizove
 
     private ListaKvizovaAdapter adapter;
     private ArrayList<Kviz> kvizovi = new ArrayList<Kviz>() {
