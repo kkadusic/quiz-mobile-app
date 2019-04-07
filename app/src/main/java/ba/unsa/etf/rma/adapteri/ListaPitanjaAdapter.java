@@ -3,6 +3,7 @@ package ba.unsa.etf.rma.adapteri;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,6 +81,12 @@ public class ListaPitanjaAdapter extends BaseAdapter implements View.OnClickList
             if (position != lista.size() - 1) {
                 holder.nazivKviza.setText(pitanje.getNaziv());
                 holder.slikaKviza.setImageResource(R.drawable.blue_dot);
+
+                /*
+                if (!pitanje.getTacan().isEmpty()) {
+                    holder.nazivKviza.setBackgroundColor(Color.GREEN);
+                }
+                */
                 //holder.slikaKviza.setImageResource(resources.getIdentifier("ba.unsa.etf.rma:drawable/blue_dot", null, null));
             } else {
                 holder.nazivKviza.setText("Dodaj Pitanje");

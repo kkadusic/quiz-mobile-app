@@ -7,9 +7,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -23,7 +23,8 @@ public class KvizoviAkt extends AppCompatActivity {
     private Spinner spPostojeceKategorije;
     private ListView lista;
 
-    private static final int MY_REQUEST_CODE = 1999;
+    private static final int MY_REQUEST_CODE = 1999; // za kvizove
+    private static final int MY_REQUEST_CODE2 = 2000; // za kategorije
 
     private ListaKvizovaAdapter adapter;
     private ArrayList<Kviz> kvizovi = new ArrayList<Kviz>() {
@@ -31,7 +32,8 @@ public class KvizoviAkt extends AppCompatActivity {
             add(new Kviz());
         }
     };
-    private ArrayList<String> kategorije;
+    private ArrayList<Kategorija> kategorije;
+    private ArrayAdapter<Kategorija> adapterSpiner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,33 +47,37 @@ public class KvizoviAkt extends AppCompatActivity {
         adapter = new ListaKvizovaAdapter(this, kvizovi, getResources());
         lista.setAdapter(adapter);
 
+
         // SPINER
-        kategorije = napuniKategorije();
-        Spinner s = (Spinner) findViewById(R.id.spPostojeceKategorije);
-        ArrayAdapter<String> adapterSpiner = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, kategorije);
+        kategorije = napuniKategorijeNew();
+        adapterSpiner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, kategorije);
         adapterSpiner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        s.setAdapter(adapterSpiner);
+        spPostojeceKategorije.setAdapter(adapterSpiner);
 
-        napuniListuKvizova();
-
-
-        /*
-        lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        spPostojeceKategorije.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
-                Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
-                if (position == lista.getCount() - 1) {
-                    myIntent.putExtra("nekiKviz", (Parcelable) new Kviz("", new ArrayList<Pitanje>(), new Kategorija()));
-                    myIntent.putExtra("kategorije", kategorije);
-                    startActivity(myIntent);
-                } else {
-                    myIntent.putExtra("nekiKviz", (Parcelable) kvizovi.get(position));
-                    myIntent.putExtra("kategorije", kategorije);
-                    startActivity(myIntent);
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
+                if (position == spPostojeceKategorije.getCount() - 1) {
+                    Intent myIntent = new Intent(KvizoviAkt.this, DodajKategorijuAkt.class);
+                    myIntent.putExtra("nekaKategorija", (Parcelable) new Kategorija("", ""));
+                    startActivityForResult(myIntent, MY_REQUEST_CODE2);
+                }
+                else {
+                    //KvizoviAkt.this.adapter.getFilter().filter(dajImenaKvizova());
+                    Toast.makeText(getBaseContext(), kategorije.get(position).getNaziv(), Toast.LENGTH_SHORT).show();
                 }
             }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+
+            }
         });
-        */
+
+
+
+
+        napuniListuKvizova();
 
         lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -132,30 +138,18 @@ public class KvizoviAkt extends AppCompatActivity {
         kategorije.add("Nauka");
         kategorije.add("Sport");
         kategorije.add("Jezici");
+        kategorije.add("Nova kategorija");
         return kategorije;
     }
 
-    /*
-    public void onItemClick(int mPosition) {
-        Intent intent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
-
-        intent.putExtra("kategorije", kategorije);
-        Integer pos = mPosition;
-        Boolean novi = false;
-        intent.putExtra("p", pos);
-        if (mPosition != kvizovi.size() - 1) {
-            Kviz temp = (Kviz) kvizovi.get(mPosition);
-            intent.putExtra("kviz", (Parcelable) new Kviz(temp.getNaziv(), temp.getPitanja(), temp.getKategorija()));
-            novi = false;
-        } else {
-            intent.putExtra("kviz", (Parcelable) new Kviz("", new ArrayList<Pitanje>(), new Kategorija("", "")));
-            novi = true;
-        }
-        intent.putExtra("novi", novi);
-        startActivityForResult(intent, 1);
+    public ArrayList<Kategorija> napuniKategorijeNew(){
+        ArrayList<Kategorija> kategorije = new ArrayList<>();
+        kategorije.add(new Kategorija("Nauka", "1"));
+        kategorije.add(new Kategorija("Sport", "2"));
+        kategorije.add(new Kategorija("Jezici", "3"));
+        kategorije.add(new Kategorija("Nova kategorija", "4"));
+        return kategorije;
     }
-    */
-
 
 
 
@@ -164,6 +158,7 @@ public class KvizoviAkt extends AppCompatActivity {
         if (requestCode == MY_REQUEST_CODE && resultCode == RESULT_OK) {
             Bundle bundle = intent.getExtras();
             Kviz kviz = (Kviz) bundle.getParcelable("nekiKviz");
+
 
             Integer pos = bundle.getInt("p");
             Boolean novi = bundle.getBoolean("novi");
@@ -176,9 +171,24 @@ public class KvizoviAkt extends AppCompatActivity {
             kvizovi.add(pos, kviz);
             adapter.notifyDataSetChanged();
         }
+        if (requestCode == MY_REQUEST_CODE2 && resultCode == RESULT_OK){
+            Bundle bundle = intent.getExtras();
+            Kategorija kategorija = (Kategorija) bundle.getParcelable("nekaKategorija");
+            kategorije.add(kategorije.size()-1, kategorija);
+            adapterSpiner.notifyDataSetChanged();
+        }
         if (resultCode == RESULT_CANCELED) {
 
         }
+    }
+
+    public CharSequence[] dajImenaKvizova(){
+        ArrayList<String> kvizici = new ArrayList<>();
+        for (Kviz k : kvizovi){
+            kvizici.add(k.getNaziv());
+        }
+        CharSequence[] cs = kvizici.toArray(new CharSequence[kvizici.size()]);
+        return cs;
     }
 
 }

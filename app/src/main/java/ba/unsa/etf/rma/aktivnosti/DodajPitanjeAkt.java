@@ -1,10 +1,12 @@
 package ba.unsa.etf.rma.aktivnosti;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -67,19 +69,40 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         });
 
 
+
+
         btnDodajPitanje.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Pitanje pitanje = new Pitanje();
+                // naziv i tekst pitanja je ista stvar
                 pitanje.setNaziv(etNaziv.getText().toString());
+                pitanje.setTekstPitanja(etNaziv.getText().toString());
                 pitanje.setOdgovori(odgovori);
 
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("nekoPitanje", (Parcelable) new Pitanje(pitanje.getNaziv(), "", pitanje.getOdgovori(), ""));
+                returnIntent.putExtra("nekoPitanje", (Parcelable) new Pitanje(pitanje.getNaziv(), pitanje.getTekstPitanja(), pitanje.getOdgovori(), ""));
                 setResult(RESULT_OK, returnIntent);
                 finish();
             }
         });
 
+
+        lvOdgovori.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
+                odgovori.remove(position);
+                adapterOdgovori.notifyDataSetChanged();
+            }
+        });
+
+    }
+
+    public void onListItemClick(ListView parent, View v, int position, long id){
+        //Set background of all items to white
+        for (int i=0;i<parent.getChildCount();i++){
+            parent.getChildAt(i).setBackgroundColor(Color.WHITE);
+        }
+        v.setBackgroundColor(Color.CYAN);
     }
 }

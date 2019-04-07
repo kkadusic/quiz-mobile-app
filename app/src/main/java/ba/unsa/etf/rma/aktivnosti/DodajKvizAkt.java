@@ -1,6 +1,8 @@
 package ba.unsa.etf.rma.aktivnosti;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,8 +42,6 @@ public class DodajKvizAkt extends AppCompatActivity {
             add(new Pitanje());
         }
     };
-
-    private ArrayList<Pitanje> pitanja2 = new ArrayList<>();
 
     private ArrayList<Pitanje> mogucaPitanja = new ArrayList<Pitanje>();
     private ListaMogucihPitanjaAdapter adapterMogucaPitanja;
@@ -97,18 +97,23 @@ public class DodajKvizAkt extends AppCompatActivity {
         btnDodajKviz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Kviz kviz = new Kviz();
-                kviz.setNaziv(etNaziv.getText().toString());
-                ArrayList<Pitanje> pom = pitanja;
-                pom.remove(pom.size() - 1); // da ne dodaje dodajPitanje element
-                kviz.setPitanja(pom);
+                if (!etNaziv.getText().toString().isEmpty()) {
+                    Kviz kviz = new Kviz();
+                    kviz.setNaziv(etNaziv.getText().toString());
+                    ArrayList<Pitanje> pom = pitanja;
+                    pom.remove(pom.size() - 1); // da ne dodaje dodajPitanje element
+                    kviz.setPitanja(pom);
 
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("nekiKviz", (Parcelable) new Kviz(kviz.getNaziv(), kviz.getPitanja(), new Kategorija()));
-                returnIntent.putExtra("novi", novi);
-                returnIntent.putExtra("p", pos);
-                setResult(RESULT_OK, returnIntent);
-                finish();
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("nekiKviz", (Parcelable) new Kviz(kviz.getNaziv(), kviz.getPitanja(), new Kategorija()));
+                    returnIntent.putExtra("novi", novi);
+                    returnIntent.putExtra("p", pos);
+                    setResult(RESULT_OK, returnIntent);
+                    finish();
+                }
+                else {
+                    etNaziv.getBackground().setColorFilter(Color.parseColor("#6AFF0000"), PorterDuff.Mode.SRC_ATOP);
+                }
             }
         });
 

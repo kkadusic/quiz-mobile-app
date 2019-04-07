@@ -61,4 +61,9 @@ public class Kategorija implements Serializable, Parcelable {
             return new Kategorija[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return naziv;
+    }
 }

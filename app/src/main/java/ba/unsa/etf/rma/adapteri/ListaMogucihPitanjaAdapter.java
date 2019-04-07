@@ -76,7 +76,7 @@ public class ListaMogucihPitanjaAdapter extends BaseAdapter implements View.OnCl
             pitanje = null;
             pitanje = (Pitanje) lista.get(position);
             holder.nazivKviza.setText(pitanje.getNaziv());
-            holder.slikaKviza.setImageResource(R.drawable.blue_dot);
+            holder.slikaKviza.setImageResource(R.drawable.plus);
         }
         return vi;
     }

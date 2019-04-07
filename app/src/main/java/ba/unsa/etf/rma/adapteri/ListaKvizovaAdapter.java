@@ -3,21 +3,25 @@ package ba.unsa.etf.rma.adapteri;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.Kviz;
 
-public class ListaKvizovaAdapter extends BaseAdapter implements View.OnClickListener {
+public class ListaKvizovaAdapter extends BaseAdapter implements View.OnClickListener, Filterable {
     private Activity activity;
-    private ArrayList lista;
+    private ArrayList<Kviz> lista;
     private static LayoutInflater inflater = null;
     public Resources resources;
     Kviz kviz = null;
@@ -48,6 +52,44 @@ public class ListaKvizovaAdapter extends BaseAdapter implements View.OnClickList
 
     @Override
     public void onClick(View v) {
+    }
+
+    @Override
+    public Filter getFilter() {
+
+        Filter filter = new Filter() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                lista = (ArrayList) results.values;
+                notifyDataSetChanged();
+            }
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+
+                FilterResults results = new FilterResults();
+                ArrayList<String> FilteredArrayNames = new ArrayList<String>();
+
+                // perform your search here using the searchConstraint String.
+
+                constraint = constraint.toString().toLowerCase();
+                for (int i = 0; i < lista.size(); i++) {
+                    String dataNames = lista.get(i).getClass().getName();
+                    if (dataNames.toLowerCase().startsWith(constraint.toString()))  {
+                        FilteredArrayNames.add(dataNames);
+                    }
+                }
+
+                results.count = FilteredArrayNames.size();
+                results.values = FilteredArrayNames;
+
+                return results;
+            }
+        };
+
+        return filter;
     }
 
     public static class ViewHolder {
