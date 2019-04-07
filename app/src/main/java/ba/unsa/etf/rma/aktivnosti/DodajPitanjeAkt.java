@@ -2,6 +2,7 @@ package ba.unsa.etf.rma.aktivnosti;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -75,20 +76,24 @@ public class DodajPitanjeAkt extends AppCompatActivity {
 
 
 
-
         btnDodajPitanje.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Pitanje pitanje = new Pitanje();
-                // naziv i tekst pitanja je ista stvar
-                pitanje.setNaziv(etNaziv.getText().toString());
-                pitanje.setTekstPitanja(etNaziv.getText().toString());
-                pitanje.setOdgovori(odgovori);
+                if (!etNaziv.getText().toString().isEmpty()) {
+                    Pitanje pitanje = new Pitanje();
+                    // naziv i tekst pitanja je ista stvar
+                    pitanje.setNaziv(etNaziv.getText().toString());
+                    pitanje.setTekstPitanja(etNaziv.getText().toString());
+                    pitanje.setOdgovori(odgovori);
 
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("nekoPitanje", (Parcelable) new Pitanje(pitanje.getNaziv(), pitanje.getTekstPitanja(), pitanje.getOdgovori(), ""));
-                setResult(RESULT_OK, returnIntent);
-                finish();
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("nekoPitanje", (Parcelable) new Pitanje(pitanje.getNaziv(), pitanje.getTekstPitanja(), pitanje.getOdgovori(), ""));
+                    setResult(RESULT_OK, returnIntent);
+                    finish();
+                }
+                else {
+                    etNaziv.getBackground().setColorFilter(Color.parseColor("#6AFF0000"), PorterDuff.Mode.SRC_ATOP);
+                }
             }
         });
 
