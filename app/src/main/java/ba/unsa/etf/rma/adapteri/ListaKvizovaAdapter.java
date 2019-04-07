@@ -79,11 +79,9 @@ public class ListaKvizovaAdapter extends BaseAdapter implements View.OnClickList
             if (position != lista.size() - 1) {
                 holder.nazivKviza.setText(kviz.getNaziv());
                 holder.slikaKviza.setImageResource(R.drawable.blue_dot);
-                //holder.slikaKviza.setImageResource(resources.getIdentifier("ba.unsa.etf.rma:drawable/blue_dot", null, null));
             } else {
                 holder.nazivKviza.setText("Dodaj Kviz");
                 holder.slikaKviza.setImageResource(R.drawable.plus);
-                //holder.slikaKviza.setImageResource(resources.getIdentifier("ba.unsa.etf.rma:drawable/plus", null, null));
             }
         }
         return vi;

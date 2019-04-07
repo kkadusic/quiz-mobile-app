@@ -1,6 +1,7 @@
 package ba.unsa.etf.rma.aktivnosti;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -19,6 +20,7 @@ import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.ListaKvizovaAdapter;
 import ba.unsa.etf.rma.adapteri.ListaMogucihPitanjaAdapter;
 import ba.unsa.etf.rma.adapteri.ListaPitanjaAdapter;
+import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
 
@@ -37,8 +39,14 @@ public class DodajKvizAkt extends AppCompatActivity {
         }
     };
 
+    private ArrayList<Pitanje> pitanja2 = new ArrayList<>();
+
     private ArrayList<Pitanje> mogucaPitanja = new ArrayList<Pitanje>();
     private ListaMogucihPitanjaAdapter adapterMogucaPitanja;
+
+    private Integer pos;
+    private Boolean novi;
+    private Kviz k;
 
 
     @Override
@@ -46,8 +54,15 @@ public class DodajKvizAkt extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dodaj_kviz_akt);
 
-        Kviz k = (Kviz) getIntent().getSerializableExtra("nekiKviz");
+        //Kviz k = (Kviz) getIntent().getParcelableExtra("nekiKviz");
         ArrayList<String> kategorije = (ArrayList<String>) getIntent().getStringArrayListExtra("kategorije");
+
+
+        Bundle bundle = getIntent().getExtras();
+        //k = (Kviz) bundle.getParcelable("nekiKviz");
+        k = (Kviz) getIntent().getParcelableExtra("nekiKviz");
+        pos = bundle.getInt("p");
+        novi = bundle.getBoolean("novi");
 
         lvDodanaPitanja = (ListView) findViewById(R.id.lvDodanaPitanja);
         lvMogucaPitanja = (ListView) findViewById(R.id.lvMogucaPitanja);
@@ -77,24 +92,63 @@ public class DodajKvizAkt extends AppCompatActivity {
         napuniMogucaPitanja();
 
 
+        /*
         btnDodajKviz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Pitanje p = new Pitanje(etNaziv.getText().toString(), "", new ArrayList<String>(), "");
-                pitanja.add(pitanja.size() - 1, p);
-                adapterPitanja.notifyDataSetChanged();
+                Intent myIntent = new Intent(DodajKvizAkt.this, KvizoviAkt.class);
+                Kviz k = new Kviz(etNaziv.getText().toString(), pitanja, new Kategorija());
+                myIntent.putExtra("noviKviz", (Parcelable) k);
+                startActivity(myIntent);
+            }
+        });
+        */
+
+        btnDodajKviz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Kviz kviz = new Kviz();
+                kviz.setNaziv(etNaziv.getText().toString());
+                ArrayList<Pitanje> pom = pitanja;
+                pom.remove(pom.size() - 1); // da ne dodaje dodajPitanje element
+                kviz.setPitanja(pom);
+
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("nekiKviz", (Parcelable) new Kviz(kviz.getNaziv(), kviz.getPitanja(), new Kategorija()));
+                returnIntent.putExtra("novi", novi);
+                returnIntent.putExtra("p", pos);
+                setResult(RESULT_OK, returnIntent);
+                finish();
             }
         });
 
+
+
+        lvDodanaPitanja.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
+                if (position != lvDodanaPitanja.getCount() - 1) {
+                    mogucaPitanja.add(mogucaPitanja.size(), pitanja.get(position));
+                    pitanja.remove(position);
+                    adapterMogucaPitanja.notifyDataSetChanged();
+                    adapterPitanja.notifyDataSetChanged();
+                }
+                else {
+                    Intent myIntent = new Intent(DodajKvizAkt.this, DodajPitanjeAkt.class);
+                    startActivity(myIntent);
+                }
+            }
+        });
 
         lvMogucaPitanja.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
                 pitanja.add(pitanja.size() - 1, mogucaPitanja.get(position));
+                mogucaPitanja.remove(position);
                 adapterPitanja.notifyDataSetChanged();
+                adapterMogucaPitanja.notifyDataSetChanged();
             }
         });
-
 
     }
 

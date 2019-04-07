@@ -24,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Odgovori"
+        android:textColor="#4CAF50"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etNaziv" />
@@ -65,12 +66,16 @@
         android:layout_marginEnd="56dp"
         android:layout_marginBottom="200dp"
         android:text="Dodaj"
+        android:textColor="#1B96DE"
+        android:textSize="15sp"
+        android:background="@drawable/buttonshape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.4"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etOdgovor"
-        app:layout_constraintVertical_bias="0.545" />
+        app:layout_constraintVertical_bias="0.545"
+        android:textAllCaps="false"/>
 
     <Button
         android:id="@+id/btnDodajTacan"
@@ -80,12 +85,16 @@
         android:layout_marginEnd="58dp"
         android:layout_marginBottom="159dp"
         android:text="Dodaj tacan"
+        android:textColor="#4CAF50"
+        android:textSize="15sp"
+        android:background="@drawable/buttonshape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnDodajOdgovor"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="1.0"
+        android:textAllCaps="false"/>
 
     <Button
         android:id="@+id/btnDodajPitanje"
@@ -93,10 +102,14 @@
         android:layout_height="60dp"
         android:layout_marginBottom="60dp"
         android:text="Spasi pitanje"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:background="@drawable/buttonshape2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnDodajTacan"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="1.0"
+        android:textAllCaps="false"/>
 </android.support.constraint.ConstraintLayout>
