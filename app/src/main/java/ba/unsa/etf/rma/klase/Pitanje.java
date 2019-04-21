@@ -10,7 +10,7 @@ import java.util.Collections;
 public class Pitanje implements Serializable, Parcelable {
     private String naziv;
     private String tekstPitanja;
-    private ArrayList<String> odgovori;
+    private ArrayList<String> odgovori = new ArrayList<>();
     private String tacan;
 
     public Pitanje(String naziv, String tekstPitanja, ArrayList<String> odgovori, String tacan) {
@@ -55,9 +55,10 @@ public class Pitanje implements Serializable, Parcelable {
         this.tacan = tacan;
     }
 
-    public ArrayList<String> dajRandomOdgovore(){
-        Collections.shuffle(odgovori);
-        return odgovori;
+    public ArrayList<String> dajRandomOdgovore() {
+        ArrayList<String> randomOdgovori = odgovori;
+        Collections.shuffle(randomOdgovori);
+        return randomOdgovori;
     }
 
     protected Pitanje(Parcel in) {
@@ -102,4 +103,9 @@ public class Pitanje implements Serializable, Parcelable {
             return new Pitanje[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return naziv;
+    }
 }

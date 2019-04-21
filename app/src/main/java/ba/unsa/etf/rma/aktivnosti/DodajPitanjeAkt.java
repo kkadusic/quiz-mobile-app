@@ -38,14 +38,14 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         setContentView(R.layout.dodaj_pitanje_akt);
 
         Bundle bundle = getIntent().getExtras();
-        pitanje = (Pitanje) getIntent().getParcelableExtra("nekoPitanje");
+        pitanje = getIntent().getParcelableExtra("nekoPitanje");
 
-        lvOdgovori = (ListView) findViewById(R.id.lvOdgovori);
-        etNaziv = (EditText) findViewById(R.id.etNaziv);
-        etOdgovor = (EditText) findViewById(R.id.etOdgovor);
-        btnDodajOdgovor = (Button) findViewById(R.id.btnDodajOdgovor);
-        btnDodajTacan = (Button) findViewById(R.id.btnDodajTacan);
-        btnDodajPitanje = (Button) findViewById(R.id.btnDodajPitanje);
+        lvOdgovori = findViewById(R.id.lvOdgovori);
+        etNaziv = findViewById(R.id.etNaziv);
+        etOdgovor = findViewById(R.id.etOdgovor);
+        btnDodajOdgovor = findViewById(R.id.btnDodajOdgovor);
+        btnDodajTacan = findViewById(R.id.btnDodajTacan);
+        btnDodajPitanje = findViewById(R.id.btnDodajPitanje);
 
 
         adapterOdgovori = new ArrayAdapter<String>(this, R.layout.element_odgovori, R.id.Itemname, odgovori);

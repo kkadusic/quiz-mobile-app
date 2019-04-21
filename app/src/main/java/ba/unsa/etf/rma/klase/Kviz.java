@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class Kviz implements Serializable, Parcelable {
     private String naziv;
-    private ArrayList<Pitanje> pitanja;
+    private ArrayList<Pitanje> pitanja = new ArrayList<>();
     private Kategorija kategorija;
 
     public Kviz(String naziv, ArrayList<Pitanje> pitanja, Kategorija kategorija) {
@@ -44,8 +44,8 @@ public class Kviz implements Serializable, Parcelable {
         this.kategorija = kategorija;
     }
 
-    public void dodajPitanje(Pitanje nekoPitanje){
-        pitanja.add(nekoPitanje);
+    public void dodajPitanje(Pitanje p) {
+        pitanja.add(p);
     }
 
     protected Kviz(Parcel in) {

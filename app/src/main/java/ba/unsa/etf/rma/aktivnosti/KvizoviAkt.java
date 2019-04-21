@@ -1,6 +1,9 @@
 package ba.unsa.etf.rma.aktivnosti;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -51,6 +54,15 @@ public class KvizoviAkt extends AppCompatActivity {
         lista.setAdapter(adapter);
 
 
+
+
+        Configuration config = getResources().getConfiguration();
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+
+
+
         // SPINER
         kategorije = napuniKategorijeNew();
         adapterSpiner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, kategorije);
@@ -74,7 +86,19 @@ public class KvizoviAkt extends AppCompatActivity {
 
         lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position != lista.getCount() - 1) {
+                    Intent intent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
+                    intent.putExtra("kviz", (Parcelable) kvizovi.get(position));
+                    startActivity(intent);
+                }
+            }
+        });
+
+
+        lista.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
                 Integer pos = position;
                 Boolean novi = false;
@@ -91,8 +115,12 @@ public class KvizoviAkt extends AppCompatActivity {
                 }
                 myIntent.putExtra("novi", novi);
                 startActivityForResult(myIntent, MY_REQUEST_CODE);
+                return true;
             }
+
         });
+
+
 
 
 
