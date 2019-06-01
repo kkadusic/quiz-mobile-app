@@ -5,17 +5,34 @@ import android.os.Parcelable;
 
 import java.io.Serializable;
 
-public class Kategorija implements Serializable, Parcelable {
+public class Kategorija implements Parcelable {
     private String naziv;
     private String id;
+
+    public Kategorija() {
+    }
 
     public Kategorija(String naziv, String id) {
         this.naziv = naziv;
         this.id = id;
     }
 
-    public Kategorija() {
+    protected Kategorija(Parcel in) {
+        naziv = in.readString();
+        id = in.readString();
     }
+
+    public static final Creator<Kategorija> CREATOR = new Creator<Kategorija>() {
+        @Override
+        public Kategorija createFromParcel(Parcel in) {
+            return new Kategorija(in);
+        }
+
+        @Override
+        public Kategorija[] newArray(int size) {
+            return new Kategorija[size];
+        }
+    };
 
     public String getNaziv() {
         return naziv;
@@ -33,9 +50,9 @@ public class Kategorija implements Serializable, Parcelable {
         this.id = id;
     }
 
-    protected Kategorija(Parcel in) {
-        naziv = in.readString();
-        id = in.readString();
+    @Override
+    public String toString() {
+        return naziv;
     }
 
     @Override
@@ -47,23 +64,5 @@ public class Kategorija implements Serializable, Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(naziv);
         dest.writeString(id);
-    }
-
-    @SuppressWarnings("unused")
-    public static final Parcelable.Creator<Kategorija> CREATOR = new Parcelable.Creator<Kategorija>() {
-        @Override
-        public Kategorija createFromParcel(Parcel in) {
-            return new Kategorija(in);
-        }
-
-        @Override
-        public Kategorija[] newArray(int size) {
-            return new Kategorija[size];
-        }
-    };
-
-    @Override
-    public String toString() {
-        return naziv;
     }
 }

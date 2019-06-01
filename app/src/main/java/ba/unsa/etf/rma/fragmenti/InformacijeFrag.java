@@ -4,20 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.Map;
-
 import ba.unsa.etf.rma.R;
-import ba.unsa.etf.rma.adapteri.ListaPitanjaAdapter;
-import ba.unsa.etf.rma.aktivnosti.IgrajKvizAkt;
 import ba.unsa.etf.rma.aktivnosti.KvizoviAkt;
 import ba.unsa.etf.rma.klase.Kviz;
 
@@ -26,7 +21,7 @@ public class InformacijeFrag extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    public TextView infNazivKviza;
+    private TextView infNazivKviza;
     private TextView infBrojTacnihPitanja;
     private TextView infBrojPreostalihPitanja;
     private TextView infProcenatTacni;
@@ -60,6 +55,9 @@ public class InformacijeFrag extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        FragmentManager fm = getFragmentManager();
+        PitanjeFrag f = (PitanjeFrag) fm.findFragmentByTag("pitanjeFrag");
+
 
     }
 
@@ -85,10 +83,17 @@ public class InformacijeFrag extends Fragment {
         });
 
         infNazivKviza.setText(k.getNaziv());
-        infBrojPreostalihPitanja.setText("0");
+        //infBrojPreostalihPitanja.setText("0");
         infBrojTacnihPitanja.setText("0");
         infProcenatTacni.setText("100%");
 
+
+        Bundle bundle = getArguments();
+
+        if (bundle != null)
+        {
+            infBrojPreostalihPitanja.setText(" "+bundle.getString("email"));
+        }
 
 
         return view;

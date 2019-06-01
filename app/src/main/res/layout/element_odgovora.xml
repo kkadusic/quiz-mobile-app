@@ -7,16 +7,16 @@
 
     <ImageView
         android:id="@+id/ikona"
-        android:layout_width="16dp"
-        android:layout_height="18dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="5dp"
         android:layout_marginBottom="5dp"
-        android:src="@drawable/plus" />
+        android:src="@drawable/blue_dot" />
 
     <TextView
-        android:id="@+id/naziv"
+        android:id="@+id/odgovor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"

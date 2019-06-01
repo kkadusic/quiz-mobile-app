@@ -3,7 +3,6 @@ package ba.unsa.etf.rma.adapteri;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
-import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
 
 public class ListaPitanjaAdapter extends BaseAdapter implements View.OnClickListener {
@@ -65,8 +63,8 @@ public class ListaPitanjaAdapter extends BaseAdapter implements View.OnClickList
         if (convertView == null) {
             vi = inflater.inflate(R.layout.element_liste, null);
             holder = new ListaKvizovaAdapter.ViewHolder();
-            holder.slikaKviza = (ImageView) vi.findViewById(R.id.slikaKviza);
-            holder.nazivKviza = (TextView) vi.findViewById(R.id.nazivKviza);
+            holder.slikaKviza = (ImageView) vi.findViewById(R.id.ikona);
+            holder.nazivKviza = (TextView) vi.findViewById(R.id.naziv);
             vi.setTag(holder);
         } else {
             holder = (ListaKvizovaAdapter.ViewHolder) vi.getTag();

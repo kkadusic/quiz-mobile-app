@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +18,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
-import ba.unsa.etf.rma.adapteri.ListaPitanjaAdapter;
-import ba.unsa.etf.rma.aktivnosti.IgrajKvizAkt;
-import ba.unsa.etf.rma.aktivnosti.KvizoviAkt;
 import ba.unsa.etf.rma.klase.Kviz;
-import ba.unsa.etf.rma.klase.Pitanje;
 
 
 /**
@@ -128,12 +124,26 @@ public class PitanjeFrag extends Fragment {
                             adapterOdgovori.notifyDataSetChanged();
                             BROJAC_PITANJA++;
                         }
+                        else {
+                            tekstPitanja.setText("Kviz je završen!");
+                            odgovori.clear();
+                            adapterOdgovori.notifyDataSetChanged();
+                        }
                     }
                 }, 2000);
             }
         });
 
 
+
+        FragmentTransaction transection=getFragmentManager().beginTransaction();
+        InformacijeFrag mfragment=new InformacijeFrag();
+
+        Bundle bundle=new Bundle();
+        bundle.putString("email","ovoSamPoslao");
+        mfragment.setArguments(bundle); //data being send to SecondFragment
+        transection.replace(R.id.informacijePlace, mfragment);
+        transection.commit();
 
 
        // odgovori = k.getPitanja().get(0).getOdgovori();

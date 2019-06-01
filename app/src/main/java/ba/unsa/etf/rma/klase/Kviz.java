@@ -3,13 +3,15 @@ package ba.unsa.etf.rma.klase;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Kviz implements Serializable, Parcelable {
+public class Kviz implements Parcelable {
     private String naziv;
     private ArrayList<Pitanje> pitanja = new ArrayList<>();
     private Kategorija kategorija;
+
+    public Kviz() {
+    }
 
     public Kviz(String naziv, ArrayList<Pitanje> pitanja, Kategorija kategorija) {
         this.naziv = naziv;
@@ -17,8 +19,28 @@ public class Kviz implements Serializable, Parcelable {
         this.kategorija = kategorija;
     }
 
-    public Kviz() {
+    public Kviz(String naziv, Kategorija kategorija) {
+        this.naziv = naziv;
+        this.kategorija = kategorija;
     }
+
+    protected Kviz(Parcel in) {
+        naziv = in.readString();
+        pitanja = in.createTypedArrayList(Pitanje.CREATOR);
+        kategorija = in.readParcelable(Kategorija.class.getClassLoader());
+    }
+
+    public static final Creator<Kviz> CREATOR = new Creator<Kviz>() {
+        @Override
+        public Kviz createFromParcel(Parcel in) {
+            return new Kviz(in);
+        }
+
+        @Override
+        public Kviz[] newArray(int size) {
+            return new Kviz[size];
+        }
+    };
 
     public String getNaziv() {
         return naziv;
@@ -44,19 +66,9 @@ public class Kviz implements Serializable, Parcelable {
         this.kategorija = kategorija;
     }
 
-    public void dodajPitanje(Pitanje p) {
-        pitanja.add(p);
-    }
-
-    protected Kviz(Parcel in) {
-        naziv = in.readString();
-        if (in.readByte() == 0x01) {
-            pitanja = new ArrayList<Pitanje>();
-            in.readList(pitanja, Pitanje.class.getClassLoader());
-        } else {
-            pitanja = null;
-        }
-        kategorija = (Kategorija) in.readValue(Kategorija.class.getClassLoader());
+    @Override
+    public String toString() {
+        return naziv;
     }
 
     @Override
@@ -67,25 +79,11 @@ public class Kviz implements Serializable, Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(naziv);
-        if (pitanja == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeList(pitanja);
-        }
-        dest.writeValue(kategorija);
+        dest.writeTypedList(pitanja);
+        dest.writeParcelable(kategorija, flags);
     }
 
-    @SuppressWarnings("unused")
-    public static final Parcelable.Creator<Kviz> CREATOR = new Parcelable.Creator<Kviz>() {
-        @Override
-        public Kviz createFromParcel(Parcel in) {
-            return new Kviz(in);
-        }
-
-        @Override
-        public Kviz[] newArray(int size) {
-            return new Kviz[size];
-        }
-    };
+    public void dodajPitanje(Pitanje p) {
+        pitanja.add(p);
+    }
 }

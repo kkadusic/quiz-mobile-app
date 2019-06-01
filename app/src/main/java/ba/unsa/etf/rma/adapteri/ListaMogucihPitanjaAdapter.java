@@ -63,8 +63,8 @@ public class ListaMogucihPitanjaAdapter extends BaseAdapter implements View.OnCl
         if (convertView == null) {
             vi = inflater.inflate(R.layout.element_liste, null);
             holder = new ListaKvizovaAdapter.ViewHolder();
-            holder.slikaKviza = (ImageView) vi.findViewById(R.id.slikaKviza);
-            holder.nazivKviza = (TextView) vi.findViewById(R.id.nazivKviza);
+            holder.slikaKviza = (ImageView) vi.findViewById(R.id.ikona);
+            holder.nazivKviza = (TextView) vi.findViewById(R.id.naziv);
             vi.setTag(holder);
         } else {
             holder = (ListaKvizovaAdapter.ViewHolder) vi.getTag();
