@@ -1,38 +1,43 @@
 package ba.unsa.etf.rma.fragmenti;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
-import ba.unsa.etf.rma.klase.Kviz;
+import ba.unsa.etf.rma.aktivnosti.IgrajKvizAkt;
+import ba.unsa.etf.rma.dto.Kviz;
 
-import static android.graphics.Color.BLUE;
 import static android.graphics.Color.GREEN;
 import static android.graphics.Color.RED;
 
 
 public class PitanjeFrag extends Fragment {
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private IgrajKvizAkt igrajKvizAkt;
 
     private String mParam1;
     private String mParam2;
+    private String imeIgraca = "Default";
 
     private TextView tekstPitanja;
     private ListView odgovoriPitanja;
@@ -44,7 +49,7 @@ public class PitanjeFrag extends Fragment {
 
     private ArrayAdapter<String> adapterOdgovori;
 
-    private OnFragmentInteractionListener mListener;
+    private OnCompleteListener mListener;
 
 
     public PitanjeFrag() {
@@ -52,8 +57,8 @@ public class PitanjeFrag extends Fragment {
     }
 
 
-    public interface TextClicked{
-        void sendText(String text);
+    public interface OnCompleteListener{
+        void onComplete(String procenatTacnih, String imeIgraca);
     }
 
 
@@ -112,7 +117,7 @@ public class PitanjeFrag extends Fragment {
                 }
 
                 double procenat = ((double) BROJAC_TACNIH / (BROJAC_PITANJA + 1)) * 100;
-                String procenatDvijeDecimale = String.format("%.2f", procenat);
+                final String procenatDvijeDecimale = String.format("%.2f", procenat);
 
                 ArrayList<String> informacije = new ArrayList<>();
                 informacije.add(Integer.toString(BROJAC_TACNIH));
@@ -149,26 +154,40 @@ public class PitanjeFrag extends Fragment {
                             tekstPitanja.setText("Kviz je završen!");
                             odgovori.clear();
                             adapterOdgovori.notifyDataSetChanged();
+
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("Unesite ime: ");
+
+                            final EditText input = new EditText(getActivity());
+                            input.setInputType(InputType.TYPE_CLASS_TEXT);
+                            builder.setView(input);
+
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    imeIgraca = input.getText().toString();
+                                    mListener.onComplete(procenatDvijeDecimale + "%", imeIgraca);
+                                }
+                            });
+
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                            builder.show();
+
                         }
                     }
                 }, 2000);
+
             }
         });
 
 
-        /*
-        FragmentTransaction transection=getFragmentManager().beginTransaction();
-        InformacijeFrag mfragment = new InformacijeFrag();
-
-        Bundle bundle = new Bundle();
-        bundle.putString("email","ovoSamPoslao");
-        mfragment.setArguments(bundle); //data being send to SecondFragment
-        transection.replace(R.id.informacijePlace, mfragment);
-        transection.commit();
-        */
-
-
-       // odgovori = k.getPitanja().get(0).getOdgovori();
         return view;
     }
 
@@ -186,17 +205,11 @@ public class PitanjeFrag extends Fragment {
     }
 
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+            mListener = (OnCompleteListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -212,4 +225,6 @@ public class PitanjeFrag extends Fragment {
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
+
+
 }

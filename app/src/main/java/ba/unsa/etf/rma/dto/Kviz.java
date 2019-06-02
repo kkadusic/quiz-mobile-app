@@ -1,4 +1,4 @@
-package ba.unsa.etf.rma.klase;
+package ba.unsa.etf.rma.dto;
 
 import android.os.Parcel;
 import android.os.Parcelable;

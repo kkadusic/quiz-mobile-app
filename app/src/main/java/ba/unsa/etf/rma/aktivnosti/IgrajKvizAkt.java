@@ -5,14 +5,24 @@ import android.net.Uri;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.format.Time;
+
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.fragmenti.InformacijeFrag;
 import ba.unsa.etf.rma.fragmenti.PitanjeFrag;
-import ba.unsa.etf.rma.klase.Kviz;
+import ba.unsa.etf.rma.klase.FBWrite;
+import ba.unsa.etf.rma.dto.Kviz;
 
-public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFragmentInteractionListener, InformacijeFrag.OnFragmentInteractionListener {
+public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFragmentInteractionListener,
+        InformacijeFrag.OnFragmentInteractionListener, PitanjeFrag.OnCompleteListener {
+
     private Kviz kviz;
+    private String imeIgraca = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +48,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         transaction2.replace(R.id.pitanjePlace, pitanjeFrag);
         transaction2.addToBackStack(null);
         transaction2.commit();
+
     }
 
 
@@ -46,9 +57,22 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         frag.updateText(text);
     }
 
+
+
     @Override
     public void onFragmentInteraction(Uri uri) {
 
     }
+
+
+    @Override
+    public void onComplete(String procenatTacnih, String imeIgraca) {
+        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+
+        FBWrite fb = new FBWrite(IgrajKvizAkt.this);
+        String dokument = fb.dodajRangListu(imeIgraca, procenatTacnih, "/", kviz.getNaziv());
+        new FBWrite(IgrajKvizAkt.this).execute("Rangliste", kviz.getNaziv() + " " + currentDateTimeString, dokument);
+    }
+
 
 }

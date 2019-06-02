@@ -15,8 +15,7 @@ import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.FBWrite;
-import ba.unsa.etf.rma.klase.Firebase;
-import ba.unsa.etf.rma.klase.Kategorija;
+import ba.unsa.etf.rma.dto.Kategorija;
 
 public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback {
 

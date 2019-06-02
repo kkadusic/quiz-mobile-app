@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -19,15 +18,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.FBWrite;
-import ba.unsa.etf.rma.klase.Firebase;
-import ba.unsa.etf.rma.klase.Pitanje;
-
-import static org.xmlpull.v1.XmlPullParser.TYPES;
+import ba.unsa.etf.rma.dto.Pitanje;
 
 public class DodajPitanjeAkt extends AppCompatActivity {
 

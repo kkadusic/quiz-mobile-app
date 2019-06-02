@@ -19,8 +19,8 @@ import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.MyAdapter;
 import ba.unsa.etf.rma.klase.DohvatiKvizove;
 import ba.unsa.etf.rma.klase.DohvatiKvizove2;
-import ba.unsa.etf.rma.klase.Kategorija;
-import ba.unsa.etf.rma.klase.Kviz;
+import ba.unsa.etf.rma.dto.Kategorija;
+import ba.unsa.etf.rma.dto.Kviz;
 
 public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDohvatiKvizoveDone, DohvatiKvizove2.IDohvatiFilterKvizoveDone {
 

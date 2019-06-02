@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.aktivnosti.KvizoviAkt;
-import ba.unsa.etf.rma.klase.Kviz;
+import ba.unsa.etf.rma.dto.Kviz;
 
 
 public class InformacijeFrag extends Fragment {

@@ -24,6 +24,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.dto.Kategorija;
+import ba.unsa.etf.rma.dto.Kviz;
+import ba.unsa.etf.rma.dto.Pitanje;
 
 public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
     private ArrayList<Kviz> kvizovi = new ArrayList<>();

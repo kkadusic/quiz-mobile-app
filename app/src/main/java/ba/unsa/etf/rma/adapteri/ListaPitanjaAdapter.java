@@ -13,7 +13,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
-import ba.unsa.etf.rma.klase.Pitanje;
+import ba.unsa.etf.rma.dto.Pitanje;
 
 public class ListaPitanjaAdapter extends BaseAdapter implements View.OnClickListener {
     private Activity activity;

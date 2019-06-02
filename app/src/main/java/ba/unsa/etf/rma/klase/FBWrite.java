@@ -22,6 +22,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Map;
 
 import ba.unsa.etf.rma.R;
 
@@ -53,6 +54,8 @@ public class FBWrite extends AsyncTask<String, Void, Void> {
             conn.setRequestProperty("Accept", "application/json");
 
             String dokument = strings[2];
+
+
 
             try (OutputStream os = conn.getOutputStream()){
                 byte[] input = dokument.getBytes(StandardCharsets.UTF_8);
@@ -174,6 +177,58 @@ public class FBWrite extends AsyncTask<String, Void, Void> {
         dokument += jsonObject.toString();
         dokument += "}";
 
+        return dokument;
+    }
+
+    public String napraviPolje (String nazivMape, Map<String, Map<String, String>> lista, Map<String, String> igrac){ // nazivMape = lista
+        String dokument = "\"" + nazivMape + "\": ";
+
+
+
+        JSONObject json = new JSONObject();
+
+
+
+        JSONObject obj = new JSONObject();
+        JSONObject obj3 = new JSONObject();
+        try {
+            obj.put("mapValue", obj3);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return null;
+    }
+
+
+    public String dodajRangListu(String nazivIgraca, String procenatTacnih, String pozicija, String nazivKviza){
+        String dokument = "{ \"fields\": {\n" +
+                "        \"lista\": {\n" +
+                "          \"mapValue\": {\n" +
+                "            \"fields\": {\n" +
+                "              \"igrac\": {\n" +
+                "                \"mapValue\": {\n" +
+                "                  \"fields\": {\n" +
+                "                    \"naziv\": {\n" +
+                "                      \"stringValue\": \"" + nazivIgraca + "\"\n" +
+                "                    },\n" +
+                "                    \"procenatTacnih\": {\n" +
+                "                      \"stringValue\": \"" + procenatTacnih + "\"\n" +
+                "                    }\n" +
+                "                  }\n" +
+                "                }\n" +
+                "              },\n" +
+                "              \"pozicija\": {\n" +
+                "                \"stringValue\": \"" + pozicija + "\"\n" +
+                "              }\n" +
+                "            }\n" +
+                "          }\n" +
+                "        },\n" +
+                "        \"" + "nazivKviza" + "\": {\n" +
+                "          \"stringValue\": \"" + nazivKviza + "\"\n" +
+                "        }\n" +
+                "      }}";
         return dokument;
     }
 

@@ -20,6 +20,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import ba.unsa.etf.rma.dto.Pitanje;
+
 public class Dohvati extends AsyncTask<String, Integer, Void> {
     ArrayList<Pitanje> moguca = new ArrayList<>();
 

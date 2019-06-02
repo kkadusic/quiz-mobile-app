@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ba.unsa.etf.rma.R;
-import ba.unsa.etf.rma.klase.Kviz;
-import ba.unsa.etf.rma.klase.Pitanje;
+import ba.unsa.etf.rma.dto.Kviz;
+import ba.unsa.etf.rma.dto.Pitanje;
 
 
 public class MyAdapter extends ArrayAdapter<Object> {

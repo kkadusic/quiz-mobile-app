@@ -30,9 +30,9 @@ import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.MyAdapter;
 import ba.unsa.etf.rma.klase.FBWrite;
 import ba.unsa.etf.rma.klase.Firebase;
-import ba.unsa.etf.rma.klase.Kategorija;
-import ba.unsa.etf.rma.klase.Kviz;
-import ba.unsa.etf.rma.klase.Pitanje;
+import ba.unsa.etf.rma.dto.Kategorija;
+import ba.unsa.etf.rma.dto.Kviz;
+import ba.unsa.etf.rma.dto.Pitanje;
 
 import static ba.unsa.etf.rma.aktivnosti.KvizoviAkt.AZURIRAJ_KVIZ;
 

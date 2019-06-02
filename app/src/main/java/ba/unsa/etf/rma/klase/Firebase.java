@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.dto.Pitanje;
 
 public class Firebase extends AsyncTask<String, Void, Void> {
 
