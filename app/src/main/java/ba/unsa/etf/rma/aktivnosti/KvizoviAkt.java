@@ -88,15 +88,28 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
             }
         });
 
+
+
+
+
+
+
         lvKvizovi.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
                 intent.putExtra("kviz", (Kviz) parent.getItemAtPosition(position));
-                intent.putExtra("requestCode", IGRAJ_KVIZ);
-                startActivityForResult(intent, IGRAJ_KVIZ);
+                startActivity(intent);
+                //intent.putExtra("requestCode", IGRAJ_KVIZ);
+                //startActivityForResult(intent, IGRAJ_KVIZ);
             }
         });
+
+
+
+
+
+
 
 
         spPostojeceKategorije.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

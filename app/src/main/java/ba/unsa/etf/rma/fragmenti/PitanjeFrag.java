@@ -21,14 +21,7 @@ import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.Kviz;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PitanjeFrag.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PitanjeFrag#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class PitanjeFrag extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -86,7 +79,7 @@ public class PitanjeFrag extends Fragment {
         tekstPitanja = view.findViewById(R.id.tekstPitanja);
 
         Intent intent = getActivity().getIntent();
-        final Kviz k = (Kviz) intent.getSerializableExtra("kviz");
+        final Kviz k = intent.getParcelableExtra("kvizIgraj");
 
         tekstPitanja.setText(k.getPitanja().get(0).getNaziv());
 
@@ -100,6 +93,8 @@ public class PitanjeFrag extends Fragment {
             }
         }, 2000);
         */
+
+
         adapterOdgovori = new ArrayAdapter<String>(view.getContext(), android.R.layout.simple_list_item_1 , odgovori);
         odgovoriPitanja.setAdapter(adapterOdgovori);
 
@@ -137,13 +132,14 @@ public class PitanjeFrag extends Fragment {
 
 
         FragmentTransaction transection=getFragmentManager().beginTransaction();
-        InformacijeFrag mfragment=new InformacijeFrag();
+        InformacijeFrag mfragment = new InformacijeFrag();
 
         Bundle bundle=new Bundle();
         bundle.putString("email","ovoSamPoslao");
         mfragment.setArguments(bundle); //data being send to SecondFragment
         transection.replace(R.id.informacijePlace, mfragment);
         transection.commit();
+
 
 
        // odgovori = k.getPitanja().get(0).getOdgovori();

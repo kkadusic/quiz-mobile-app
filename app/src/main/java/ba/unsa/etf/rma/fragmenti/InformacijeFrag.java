@@ -57,8 +57,6 @@ public class InformacijeFrag extends Fragment {
 
         FragmentManager fm = getFragmentManager();
         PitanjeFrag f = (PitanjeFrag) fm.findFragmentByTag("pitanjeFrag");
-
-
     }
 
     @Override
@@ -72,7 +70,7 @@ public class InformacijeFrag extends Fragment {
         btnKraj = view.findViewById(R.id.btnKraj);
 
         Intent i = getActivity().getIntent();
-        Kviz k = (Kviz) i.getSerializableExtra("kviz");
+        Kviz k = i.getParcelableExtra("kvizIgraj");
 
         btnKraj.setOnClickListener( new View.OnClickListener() {
             @Override
@@ -83,17 +81,19 @@ public class InformacijeFrag extends Fragment {
         });
 
         infNazivKviza.setText(k.getNaziv());
-        //infBrojPreostalihPitanja.setText("0");
+        infBrojPreostalihPitanja.setText("0");
         infBrojTacnihPitanja.setText("0");
         infProcenatTacni.setText("100%");
 
 
+        /*
         Bundle bundle = getArguments();
 
         if (bundle != null)
         {
             infBrojPreostalihPitanja.setText(" "+bundle.getString("email"));
         }
+        */
 
 
         return view;

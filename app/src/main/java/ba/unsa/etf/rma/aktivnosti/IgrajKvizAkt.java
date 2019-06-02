@@ -2,7 +2,6 @@ package ba.unsa.etf.rma.aktivnosti;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,17 +20,16 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         setContentView(R.layout.igraj_kviz_akt);
 
         final Intent intent = getIntent();
-        //Bundle bundle = getIntent().getExtras();
         kviz = intent.getParcelableExtra("kviz");
 
-        //getIntent().putExtra("kviz", (Parcelable) kviz);
+        getIntent().putExtra("kvizIgraj", kviz);
+
 
         InformacijeFrag informacijeFrag = new InformacijeFrag();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         PitanjeFrag pitanjeFrag = new PitanjeFrag();
         FragmentTransaction transaction2 = getSupportFragmentManager().beginTransaction();
-
 
         transaction.replace(R.id.informacijePlace, informacijeFrag);
         transaction.addToBackStack(null);
@@ -40,7 +38,6 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         transaction2.replace(R.id.pitanjePlace, pitanjeFrag);
         transaction2.addToBackStack(null);
         transaction2.commit();
-
     }
 
 
@@ -53,4 +50,5 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
     public void onFragmentInteraction(Uri uri) {
 
     }
+
 }
