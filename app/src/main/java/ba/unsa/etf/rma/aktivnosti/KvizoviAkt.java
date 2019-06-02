@@ -4,7 +4,6 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,10 +18,11 @@ import java.util.ArrayList;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.MyAdapter;
 import ba.unsa.etf.rma.klase.DohvatiKvizove;
+import ba.unsa.etf.rma.klase.DohvatiKvizove2;
 import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 
-public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDohvatiKvizoveDone {
+public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDohvatiKvizoveDone, DohvatiKvizove2.IDohvatiFilterKvizoveDone {
 
     static final int DODAJ_KVIZ = 100;
     static final int AZURIRAJ_KVIZ = 101;
@@ -49,10 +49,6 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         new DohvatiKvizove(KvizoviAkt.this, KvizoviAkt.this).execute("blabla");
 
 
-
-
-
-
         Configuration config = getResources().getConfiguration();
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -68,15 +64,15 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         spPostojeceKategorije.setAdapter(sAdapter);
 
         lvFooterView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
-                intent.putParcelableArrayListExtra("kategorije", kategorije);
-                intent.putParcelableArrayListExtra("kvizovi", sviKvizovi);
-                intent.putExtra("requestCode", DODAJ_KVIZ);
-                startActivityForResult(intent, DODAJ_KVIZ);
-            }
-        }
+                                            @Override
+                                            public void onClick(View v) {
+                                                Intent intent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
+                                                intent.putParcelableArrayListExtra("kategorije", kategorije);
+                                                intent.putParcelableArrayListExtra("kvizovi", sviKvizovi);
+                                                intent.putExtra("requestCode", DODAJ_KVIZ);
+                                                startActivityForResult(intent, DODAJ_KVIZ);
+                                            }
+                                        }
         );
 
         lvKvizovi.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -110,21 +106,21 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
 
                 if (kategorija != null) {
                     if (kategorija.getId().equals("-1")) {
+                        /*
                         prikazaniKvizovi.clear();
                         prikazaniKvizovi.addAll(sviKvizovi);
+                        adapter.notifyDataSetChanged();
+                        */
+                        new DohvatiKvizove(KvizoviAkt.this, KvizoviAkt.this).execute();
                     }
-                    else { // Filtriranje
+                    else {
                         prikazaniKvizovi.clear();
-                        for (Kviz k : sviKvizovi) {
-                            if (k.getKategorija() != null
-                                    && k.getKategorija().getNaziv().equals(kategorija.getNaziv())
-                                    || kategorija.getId().equals("-1")) {
-                                prikazaniKvizovi.add(k);
-                            }
-                        }
+                        adapter.notifyDataSetChanged();
+                        new DohvatiKvizove2(KvizoviAkt.this, KvizoviAkt.this, kategorija).execute();
                     }
-                    adapter.notifyDataSetChanged();
+
                 }
+
             }
 
             @Override
@@ -132,8 +128,6 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
                 spPostojeceKategorije.setSelection(0);
             }
         });
-
-
 
     }
 
@@ -149,7 +143,8 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
                     sviKvizovi.add(novi);
 
                 //spPostojeceKategorije.setSelection(spPostojeceKategorije.getSelectedItemPosition());
-                //spPostojeceKategorije.setSelection(0);
+                spPostojeceKategorije.setSelection(0);
+
                 azurirajKategorije(data);
                 prikazaniKvizovi.clear();
                 prikazaniKvizovi.addAll(sviKvizovi);
@@ -175,20 +170,36 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
     }
 
     private void initialize() {
-        kategorije.add(new Kategorija("Svi", "-1"));
-
+        // kategorije.add(new Kategorija("Svi", "-1"));
         adapter = new MyAdapter(KvizoviAkt.this, prikazaniKvizovi, getResources());
         lvKvizovi.setAdapter(adapter);
         lvKvizovi.addFooterView(lvFooterView = adapter.getFooterView(lvKvizovi, "Dodaj kviz"));
     }
 
     @Override
-    public void onDohvatiDone(ArrayList<Kviz> lista, ArrayList<Kategorija> listaKategorija) {
-        sviKvizovi.addAll(lista);
-        prikazaniKvizovi.addAll(lista);
+    public void onDohvatiDone(ArrayList<Kviz> listaKvizova, ArrayList<Kategorija> listaKategorija) {
+        sviKvizovi.clear();
+        prikazaniKvizovi.clear();
+
+        sviKvizovi.addAll(listaKvizova);
+        prikazaniKvizovi.addAll(listaKvizova);
         adapter.notifyDataSetChanged();
 
+        kategorije.clear();
+        for (Kategorija k : listaKategorija){
+            if (k.getNaziv().equals("Svi")) {
+                kategorije.add(k);
+                listaKategorija.remove(k);
+            }
+        }
         kategorije.addAll(listaKategorija);
         sAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onDohvatiFilterKvizoveDone(ArrayList<Kviz> lista) {
+        prikazaniKvizovi.clear();
+        prikazaniKvizovi.addAll(lista);
+        adapter.notifyDataSetChanged();
     }
 }

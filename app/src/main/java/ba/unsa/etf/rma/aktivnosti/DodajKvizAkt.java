@@ -154,14 +154,14 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
 
         // Dodavanje novog pitanja
         ldFooterView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(DodajKvizAkt.this, DodajPitanjeAkt.class);
-                intent.putParcelableArrayListExtra("dodana", dodana);
-                intent.putParcelableArrayListExtra("moguca", moguca);
-                startActivityForResult(intent, DODAJ_PITANJE);
-            }
-        }
+                                            @Override
+                                            public void onClick(View v) {
+                                                Intent intent = new Intent(DodajKvizAkt.this, DodajPitanjeAkt.class);
+                                                intent.putParcelableArrayListExtra("dodana", dodana);
+                                                intent.putParcelableArrayListExtra("moguca", moguca);
+                                                startActivityForResult(intent, DODAJ_PITANJE);
+                                            }
+                                        }
         );
 
         lvDodanaPitanja.setOnItemClickListener(new AdapterView.OnItemClickListener() {
