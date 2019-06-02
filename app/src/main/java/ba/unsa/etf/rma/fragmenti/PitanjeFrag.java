@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ public class PitanjeFrag extends Fragment {
     private ListView odgovoriPitanja;
 
     private int BROJAC_PITANJA = 0;
+    private int BROJAC_TACNIH = 0;
 
     ArrayList<String> odgovori = new ArrayList<String>();
 
@@ -76,7 +78,7 @@ public class PitanjeFrag extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_pitanje, container, false);
 
         odgovoriPitanja = view.findViewById(R.id.odgovoriPitanja);
@@ -100,12 +102,31 @@ public class PitanjeFrag extends Fragment {
             public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
                 final Handler handler = new Handler();
 
-                if (odgovori.get(position).equals(k.getPitanja().get(BROJAC_PITANJA).getTacan()))
+                if (odgovori.get(position).equals(k.getPitanja().get(BROJAC_PITANJA).getTacan())) {
                     view.setBackgroundColor(GREEN);
+                    BROJAC_TACNIH++;
+                }
                 else {
                     view.setBackgroundColor(RED);
                     // todo dodati da stavi zeleno na tacan
                 }
+
+                double procenat = ((double) BROJAC_TACNIH / (BROJAC_PITANJA + 1)) * 100;
+                String procenatDvijeDecimale = String.format("%.2f", procenat);
+
+                ArrayList<String> informacije = new ArrayList<>();
+                informacije.add(Integer.toString(BROJAC_TACNIH));
+                informacije.add(Integer.toString(k.getPitanja().size() - 1 - BROJAC_PITANJA));
+                informacije.add(procenatDvijeDecimale + "%");
+
+                FragmentTransaction transection=getFragmentManager().beginTransaction();
+                InformacijeFrag mfragment = new InformacijeFrag();
+
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList("email", informacije);
+                mfragment.setArguments(bundle); //data being send to SecondFragment
+                transection.replace(R.id.informacijePlace, mfragment);
+                transection.commit();
 
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -120,6 +141,7 @@ public class PitanjeFrag extends Fragment {
                             tekstPitanja.setText(k.getPitanja().get(BROJAC_PITANJA).getNaziv());
                             for (int i = 0; i < k.getPitanja().get(BROJAC_PITANJA).getOdgovori().size(); i++){
                                 odgovori.add(k.getPitanja().get(BROJAC_PITANJA).getOdgovori().get(i));
+
                             }
                             adapterOdgovori.notifyDataSetChanged();
                         }
@@ -134,7 +156,7 @@ public class PitanjeFrag extends Fragment {
         });
 
 
-
+        /*
         FragmentTransaction transection=getFragmentManager().beginTransaction();
         InformacijeFrag mfragment = new InformacijeFrag();
 
@@ -143,7 +165,7 @@ public class PitanjeFrag extends Fragment {
         mfragment.setArguments(bundle); //data being send to SecondFragment
         transection.replace(R.id.informacijePlace, mfragment);
         transection.commit();
-
+        */
 
 
        // odgovori = k.getPitanja().get(0).getOdgovori();

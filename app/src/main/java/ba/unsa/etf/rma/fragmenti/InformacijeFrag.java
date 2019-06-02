@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.aktivnosti.KvizoviAkt;
 import ba.unsa.etf.rma.klase.Kviz;
@@ -81,19 +83,18 @@ public class InformacijeFrag extends Fragment {
         });
 
         infNazivKviza.setText(k.getNaziv());
-        infBrojPreostalihPitanja.setText("0");
+        infBrojPreostalihPitanja.setText(Integer.toString(k.getPitanja().size()));
         infBrojTacnihPitanja.setText("0");
-        infProcenatTacni.setText("100%");
-
+        infProcenatTacni.setText("100.00%");
 
 
         Bundle bundle = getArguments();
-
-        if (bundle != null)
-        {
-            infBrojPreostalihPitanja.setText(" "+bundle.getString("email"));
+        if (bundle != null) {
+            ArrayList<String> informacije = bundle.getStringArrayList("email");
+            infBrojTacnihPitanja.setText(informacije.get(0));
+            infBrojPreostalihPitanja.setText(informacije.get(1));
+            infProcenatTacni.setText(informacije.get(2));
         }
-
 
 
         return view;
