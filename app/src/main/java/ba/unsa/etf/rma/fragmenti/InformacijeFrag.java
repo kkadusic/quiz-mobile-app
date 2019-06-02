@@ -86,14 +86,14 @@ public class InformacijeFrag extends Fragment {
         infProcenatTacni.setText("100%");
 
 
-        /*
+
         Bundle bundle = getArguments();
 
         if (bundle != null)
         {
             infBrojPreostalihPitanja.setText(" "+bundle.getString("email"));
         }
-        */
+
 
 
         return view;

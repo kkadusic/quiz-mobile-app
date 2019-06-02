@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.Kviz;
 
+import static android.graphics.Color.BLUE;
+import static android.graphics.Color.GREEN;
+import static android.graphics.Color.RED;
 
 
 public class PitanjeFrag extends Fragment {
@@ -33,7 +36,7 @@ public class PitanjeFrag extends Fragment {
     private TextView tekstPitanja;
     private ListView odgovoriPitanja;
 
-    private int BROJAC_PITANJA = 1;
+    private int BROJAC_PITANJA = 0;
 
     ArrayList<String> odgovori = new ArrayList<String>();
 
@@ -48,7 +51,7 @@ public class PitanjeFrag extends Fragment {
 
 
     public interface TextClicked{
-        public void sendText(String text);
+        void sendText(String text);
     }
 
 
@@ -71,6 +74,7 @@ public class PitanjeFrag extends Fragment {
 
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_pitanje, container, false);
@@ -83,41 +87,41 @@ public class PitanjeFrag extends Fragment {
 
         tekstPitanja.setText(k.getPitanja().get(0).getNaziv());
 
-
-        /*
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                odgovori.add(k.getPitanja().get(0).getOdgovori().get(0));
-            }
-        }, 2000);
-        */
-
-
-        adapterOdgovori = new ArrayAdapter<String>(view.getContext(), android.R.layout.simple_list_item_1 , odgovori);
+        adapterOdgovori = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1, odgovori);
         odgovoriPitanja.setAdapter(adapterOdgovori);
 
 
-        for (int i=0; i<k.getPitanja().get(0).getOdgovori().size(); i++){
-            odgovori.add(k.getPitanja().get(0).getOdgovori().get(i));
+        for (int i = 0; i < k.getPitanja().get(BROJAC_PITANJA).getOdgovori().size(); i++){
+            odgovori.add(k.getPitanja().get(BROJAC_PITANJA).getOdgovori().get(i));
         }
 
         odgovoriPitanja.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
                 final Handler handler = new Handler();
+
+                if (odgovori.get(position).equals(k.getPitanja().get(BROJAC_PITANJA).getTacan()))
+                    view.setBackgroundColor(GREEN);
+                else {
+                    view.setBackgroundColor(RED);
+                    // todo dodati da stavi zeleno na tacan
+                }
+
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        BROJAC_PITANJA++;
+
                         if (BROJAC_PITANJA != k.getPitanja().size()) {
+                            view.setBackgroundColor(0);
                             odgovori.clear();
+
+
                             tekstPitanja.setText(k.getPitanja().get(BROJAC_PITANJA).getNaziv());
-                            for (int i=0; i<k.getPitanja().get(BROJAC_PITANJA).getOdgovori().size(); i++){
+                            for (int i = 0; i < k.getPitanja().get(BROJAC_PITANJA).getOdgovori().size(); i++){
                                 odgovori.add(k.getPitanja().get(BROJAC_PITANJA).getOdgovori().get(i));
                             }
                             adapterOdgovori.notifyDataSetChanged();
-                            BROJAC_PITANJA++;
                         }
                         else {
                             tekstPitanja.setText("Kviz je završen!");
@@ -134,7 +138,7 @@ public class PitanjeFrag extends Fragment {
         FragmentTransaction transection=getFragmentManager().beginTransaction();
         InformacijeFrag mfragment = new InformacijeFrag();
 
-        Bundle bundle=new Bundle();
+        Bundle bundle = new Bundle();
         bundle.putString("email","ovoSamPoslao");
         mfragment.setArguments(bundle); //data being send to SecondFragment
         transection.replace(R.id.informacijePlace, mfragment);
@@ -147,7 +151,17 @@ public class PitanjeFrag extends Fragment {
     }
 
 
+    public View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
 
+        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+            return listView.getAdapter().getView(pos, null, listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
+        }
+    }
 
 
     public void onButtonPressed(Uri uri) {
