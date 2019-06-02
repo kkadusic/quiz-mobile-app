@@ -1,7 +1,10 @@
 package ba.unsa.etf.rma.aktivnosti;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,6 +20,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
@@ -33,6 +40,7 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
 
     static final int DODAJ_PITANJE = 200;
     static final int DODAJ_KATEGORIJU = 300;
+    static final int IMPORTUJ_KVIZ = 103;
 
     private ListView lvDodanaPitanja;
     private View ldFooterView;
@@ -76,6 +84,7 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
         ListView lvMogucaPitanja = findViewById(R.id.lvMogucaPitanja);
         spKategorije = findViewById(R.id.spKategorije);
         Button btnDodajKviz = findViewById(R.id.btnDodajKviz);
+        Button btnImportKviz = findViewById(R.id.btnImportKviz);
         etNaziv = findViewById(R.id.etNaziv);
 
         trenutniKviz = intent.getParcelableExtra("kviz");
@@ -151,6 +160,15 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
                 }
             }
         });
+
+
+        btnImportKviz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                performFileSearch();
+            }
+        });
+
 
         // Dodavanje novog pitanja
         ldFooterView.setOnClickListener(new View.OnClickListener() {
@@ -230,24 +248,35 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         if (resultCode == RESULT_OK) {
-            if (data != null) {
+            if (intent != null) {
 
                 if (requestCode == DODAJ_PITANJE) {
-                    Pitanje novoPitanje = data.getParcelableExtra("novoPitanje");
+                    Pitanje novoPitanje = intent.getParcelableExtra("novoPitanje");
                     dodana.add(novoPitanje);
                     // trenutniKviz.setPitanja(dodana);
                     adapterDodana.notifyDataSetChanged();
                 }
 
                 if (requestCode == DODAJ_KATEGORIJU) {
-                    Kategorija novaKategorija = data.getParcelableExtra("novaKategorija");
+                    Kategorija novaKategorija = intent.getParcelableExtra("novaKategorija");
                     kategorije.add(kategorije.size() - 1, novaKategorija);
                     // trenutniKviz.setKategorija(novaKategorija);
                     sAdapter.notifyDataSetChanged();
                     spKategorije.setSelection(kategorije.size() - 2);
                 }
+
+                if (requestCode == IMPORTUJ_KVIZ) {
+                    Uri uri = null;
+                    uri = intent.getData();
+                    try {
+                        readTextFromUri(uri);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         }
     }
@@ -276,5 +305,173 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
         }
         adapterMoguca.notifyDataSetChanged();
     }
+
+
+
+    public void performFileSearch() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/*");
+        startActivityForResult(intent, IMPORTUJ_KVIZ);
+    }
+
+
+    private String readTextFromUri(Uri uri) throws IOException {
+        InputStream inputStream = getContentResolver().openInputStream(uri);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder stringBuilder = new StringBuilder();
+
+        String line;
+        int ukupanBrojLinija = dajUkupanBrojLinijaDatoteke(uri);
+        boolean prvaLinija = true;
+        ArrayList<String> naziviSvihPitanja = new ArrayList<>();
+
+        while ((line = reader.readLine()) != null) {
+            String[] values = line.split(",");
+            int brojElemenataLinije = values.length;
+            boolean imaIstaKategorija = false;
+
+            if (prvaLinija) {
+                String nazivKviza = values[0];
+                String nazivKategorije = values[1];
+                int brojPitanja = Integer.valueOf(values[2]);
+
+                for (int i=0; i<kvizovi.size(); i++){
+                    if (kvizovi.get(i).getNaziv().equals(nazivKviza)){
+                        dajAlert("Kviz kojeg importujete već postoji!");
+                    }
+                    else {
+                        etNaziv.setText(nazivKviza);
+                    }
+                }
+
+
+                for (int i = 0; i < kategorije.size(); i++) {
+                    if (kategorije.get(i).getNaziv().equals(nazivKategorije)) {
+                        imaIstaKategorija = true;
+                    }
+                }
+
+                if (!imaIstaKategorija) {
+                    Kategorija kategorija = new Kategorija(nazivKategorije, "920");
+                    kategorije.add(kategorije.size()-1, kategorija);
+                    sAdapter.notifyDataSetChanged();
+                    spKategorije.setSelection(spKategorije.getCount()-2);
+
+                    FBWrite fb = new FBWrite(DodajKvizAkt.this);
+                    String poljeNaziv = fb.napraviPolje("naziv", kategorija.getNaziv());
+                    String poljeId = fb.napraviPolje("idIkonice", Integer.parseInt(kategorija.getId()));
+                    String dokument = fb.napraviDokument(poljeNaziv, poljeId);
+                    new FBWrite(DodajKvizAkt.this).execute("Kategorije", kategorija.getNaziv(), dokument);
+                }
+                else {
+                    for (int i=0; i<kategorije.size(); i++){
+                        if (kategorije.get(i).getNaziv().equals(nazivKategorije)) {
+                            spKategorije.setSelection(i);
+                            break;
+                        }
+                    }
+                }
+
+                if ((brojPitanja != ukupanBrojLinija - 1) || brojPitanja < 0) {
+                    dajAlert("Kviz kojeg imporujete ima neispravan broj pitanja!");
+                    resetujPolja();
+                }
+
+                prvaLinija = false;
+
+            } else {
+                String nazivPitanja = values[0];
+                int brojOdgovora = Integer.valueOf(values[1]);
+                String indeksTacnogOdgovora = values[2];
+                ArrayList<String> odgovori = new ArrayList<>();
+
+                if (brojOdgovora != brojElemenataLinije - 3) {
+                    dajAlert("Kviz kojeg importujete ima neispravan broj odgovora!");
+                    resetujPolja();
+                }
+
+
+                for (int i = 3; i < brojElemenataLinije; i++) {
+                    if (values[i].contains(",")) {
+                        dajAlert("Odgovor sadrži zarez");
+                        resetujPolja();
+                    }
+                    else if (odgovori.contains(values[i])) {
+                        dajAlert("Kviz kojeg importujete nije ispravan postoji ponavljanje odgovora!");
+                        resetujPolja();
+                    }
+                    else
+                        odgovori.add(values[i]);
+                }
+
+
+                if (!naziviSvihPitanja.contains(nazivPitanja)) {
+                    naziviSvihPitanja.add(nazivPitanja);
+
+                    String tacanOdgovor = odgovori.get(Integer.parseInt(indeksTacnogOdgovora));
+
+                    dodana.add(new Pitanje(nazivPitanja, nazivPitanja, odgovori, tacanOdgovor));
+                    adapterDodana.notifyDataSetChanged();
+
+                    FBWrite fb = new FBWrite(DodajKvizAkt.this);
+                    String poljeNaziv = fb.napraviPolje("naziv", nazivPitanja);
+                    String poljeOdgovori = fb.napraviPolje("odgovori", odgovori);
+                    String poljeIndex = fb.napraviPolje("indexTacnog", Integer.parseInt(indeksTacnogOdgovora));
+                    String dokument = fb.napraviDokument(poljeNaziv, poljeIndex, poljeOdgovori);
+                    new FBWrite(DodajKvizAkt.this).execute("Pitanja", nazivPitanja, dokument);
+                }
+                else {
+                    dajAlert("Kviz nije ispravan postoje dva pitanja sa istim nazivom!");
+                    resetujPolja();
+                }
+            }
+
+        }
+
+        adapterDodana.notifyDataSetChanged();
+        //fileInputStream.close();
+        //parcelFileDescriptor.close();
+        return stringBuilder.toString();
+    }
+
+
+    public int dajUkupanBrojLinijaDatoteke(Uri uri) throws IOException {
+        InputStream inputStream = getContentResolver().openInputStream(uri);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String line;
+        int ukupanBrojLinija = 0;
+
+        while ((line = reader.readLine()) != null) {
+            ukupanBrojLinija++;
+        }
+        reader.close();
+        return ukupanBrojLinija;
+    }
+
+    public void resetujPolja(){
+        etNaziv.setText("");
+
+        dodana.clear();
+        adapterDodana.notifyDataSetChanged();
+
+        spKategorije.setSelection(0);
+        sAdapter.notifyDataSetChanged();
+    }
+
+
+    public void dajAlert(String poruka) {
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle("Greska");
+        alertDialog.setMessage(poruka);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
+
 
 }
