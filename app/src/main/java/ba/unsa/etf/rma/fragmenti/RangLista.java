@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -70,7 +68,6 @@ public class RangLista extends Fragment implements DohvatiRangListu.IDohvatiRang
         lvPodaci.setAdapter(adapterPodaci);
 
 
-
         new DohvatiRangListu(RangLista.this, getContext()).execute();
 
 
@@ -104,20 +101,29 @@ public class RangLista extends Fragment implements DohvatiRangListu.IDohvatiRang
     @Override
     public void onDohvatiRanglisteDone(ArrayList<Ranglista> sveRangListe) {
         podaci.clear();
-        rangliste.addAll(sveRangListe);
 
-        for (int i = 0; i < rangliste.size(); i++){
-            if (rangliste.get(i).getNazivKviza().equals(kviz.getNaziv())) {
-
-                podaci.add(rangliste.get(i).getPozicija() + ".       " + rangliste.get(i).getNazivIgraca() +
-                        "        " + rangliste.get(i).getProcenatTacnih());
+        for (int i = 0; i < sveRangListe.size(); i++) {
+            if (sveRangListe.get(i).getNazivKviza().equals(kviz.getNaziv())) {
+                rangliste.add(sveRangListe.get(i));
             }
+        }
+
+        Collections.sort(rangliste, new Comparator<Ranglista>() {
+            @Override
+            public int compare(Ranglista s1, Ranglista s2) {
+                String a = s1.getProcenatTacnih().replaceAll("[^0-9]", "");
+                String b = s2.getProcenatTacnih().replaceAll("[^0-9]", "");
+                return Double.valueOf(a).compareTo(Double.valueOf(b));
+            }
+        });
+
+        for (int i = rangliste.size()-1; i >= 0; i--) {
+            podaci.add(rangliste.get(i).getPozicija() + ".       " + rangliste.get(i).getNazivIgraca() +
+                    "        " + rangliste.get(i).getProcenatTacnih());
         }
 
         adapterPodaci.notifyDataSetChanged();
     }
-
-
 
 
     public interface OnFragmentInteractionListener {

@@ -180,10 +180,12 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         kategorije.clear();
         for (Kategorija k : listaKategorija) {
             if (k.getNaziv().equals("Svi")) {
+                k.setId("-1");
                 kategorije.add(k);
                 listaKategorija.remove(k);
             }
         }
+
         kategorije.addAll(listaKategorija);
         sAdapter.notifyDataSetChanged();
     }
