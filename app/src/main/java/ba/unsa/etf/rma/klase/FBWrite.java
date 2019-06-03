@@ -210,7 +210,7 @@ public class FBWrite extends AsyncTask<String, Void, Void> {
                 "              \"igrac\": {\n" +
                 "                \"mapValue\": {\n" +
                 "                  \"fields\": {\n" +
-                "                    \"naziv\": {\n" +
+                "                    \"nazivIgraca\": {\n" +
                 "                      \"stringValue\": \"" + nazivIgraca + "\"\n" +
                 "                    },\n" +
                 "                    \"procenatTacnih\": {\n" +

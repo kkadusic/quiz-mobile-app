@@ -21,6 +21,7 @@ import ba.unsa.etf.rma.klase.DohvatiKvizove;
 import ba.unsa.etf.rma.klase.DohvatiKvizove2;
 import ba.unsa.etf.rma.dto.Kategorija;
 import ba.unsa.etf.rma.dto.Kviz;
+import ba.unsa.etf.rma.klase.DohvatiRangListu;
 
 public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDohvatiKvizoveDone, DohvatiKvizove2.IDohvatiFilterKvizoveDone {
 
@@ -46,7 +47,8 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         setContentView(R.layout.kvizovi_akt);
 
 
-        new DohvatiKvizove(KvizoviAkt.this, KvizoviAkt.this).execute("blabla");
+        new DohvatiKvizove(KvizoviAkt.this, KvizoviAkt.this).execute();
+        // new DohvatiRangListu(KvizoviAkt.this).execute();
 
 
         Configuration config = getResources().getConfiguration();

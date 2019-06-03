@@ -5,24 +5,23 @@ import android.net.Uri;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.format.Time;
 
 import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.dto.Ranglista;
 import ba.unsa.etf.rma.fragmenti.InformacijeFrag;
 import ba.unsa.etf.rma.fragmenti.PitanjeFrag;
+import ba.unsa.etf.rma.fragmenti.RangLista;
 import ba.unsa.etf.rma.klase.FBWrite;
 import ba.unsa.etf.rma.dto.Kviz;
 
 public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFragmentInteractionListener,
-        InformacijeFrag.OnFragmentInteractionListener, PitanjeFrag.OnCompleteListener {
+        InformacijeFrag.OnFragmentInteractionListener, PitanjeFrag.OnCompleteListener, RangLista.OnFragmentInteractionListener,
+        PitanjeFrag.OnZamijenaListener{
 
     private Kviz kviz;
-    private String imeIgraca = "";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +47,21 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         transaction2.replace(R.id.pitanjePlace, pitanjeFrag);
         transaction2.addToBackStack(null);
         transaction2.commit();
-
     }
 
 
     public void sendText(String text){
         InformacijeFrag frag = (InformacijeFrag) getSupportFragmentManager().findFragmentById(R.id.informacijePlace);
         frag.updateText(text);
+    }
+
+    public void zamijeniFragmente(){
+        RangLista rangListaFragment = new RangLista();
+        FragmentTransaction transaction2 = getSupportFragmentManager().beginTransaction();
+
+        transaction2.replace(R.id.pitanjePlace, rangListaFragment);
+        transaction2.addToBackStack(null);
+        transaction2.commit();
     }
 
 
@@ -70,9 +77,19 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
 
         FBWrite fb = new FBWrite(IgrajKvizAkt.this);
-        String dokument = fb.dodajRangListu(imeIgraca, procenatTacnih, "/", kviz.getNaziv());
+        String dokument = fb.dodajRangListu(imeIgraca, procenatTacnih, "0", kviz.getNaziv());
         new FBWrite(IgrajKvizAkt.this).execute("Rangliste", kviz.getNaziv() + " " + currentDateTimeString, dokument);
+
     }
 
 
+    @Override
+    public void onCompleteZamjena() {
+        RangLista rangListaFragment = new RangLista();
+        FragmentTransaction transaction2 = getSupportFragmentManager().beginTransaction();
+
+        transaction2.replace(R.id.pitanjePlace, rangListaFragment);
+        transaction2.addToBackStack(null);
+        transaction2.commit();
+    }
 }

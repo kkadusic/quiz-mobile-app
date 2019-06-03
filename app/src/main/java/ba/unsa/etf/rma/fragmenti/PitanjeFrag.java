@@ -56,9 +56,15 @@ public class PitanjeFrag extends Fragment {
         // Required empty public constructor
     }
 
-
     public interface OnCompleteListener{
         void onComplete(String procenatTacnih, String imeIgraca);
+    }
+
+
+    private OnZamijenaListener mZamjena;
+
+    public interface OnZamijenaListener{
+        void onCompleteZamjena();
     }
 
 
@@ -168,6 +174,7 @@ public class PitanjeFrag extends Fragment {
                                 public void onClick(DialogInterface dialog, int which) {
                                     imeIgraca = input.getText().toString();
                                     mListener.onComplete(procenatDvijeDecimale + "%", imeIgraca);
+                                    mZamjena.onCompleteZamjena();
                                 }
                             });
 
@@ -175,6 +182,7 @@ public class PitanjeFrag extends Fragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.cancel();
+                                    mZamjena.onCompleteZamjena(); // samo prikazi rang listu
                                 }
                             });
 
@@ -210,6 +218,7 @@ public class PitanjeFrag extends Fragment {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnCompleteListener) context;
+            mZamjena = (OnZamijenaListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
