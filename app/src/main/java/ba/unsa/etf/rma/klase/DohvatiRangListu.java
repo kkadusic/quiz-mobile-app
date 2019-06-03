@@ -1,7 +1,6 @@
 package ba.unsa.etf.rma.klase;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -29,20 +28,14 @@ import ba.unsa.etf.rma.dto.Ranglista;
 public class DohvatiRangListu extends AsyncTask<String, Void, Void> {
 
     private ArrayList<Ranglista> rangliste = new ArrayList<>();
-
-    @SuppressLint("StaticFieldLeak")
-    private Context context;
-
-    public DohvatiRangListu(Context context){
-        this.context = context;
-    }
+    private Resources resources;
 
     @Override
     protected Void doInBackground(String... strings) {
         GoogleCredential credentials;
 
         try {
-            InputStream tajnaStream = context.getResources().openRawResource(R.raw.secret);
+            InputStream tajnaStream = resources.openRawResource(R.raw.secret);
             credentials = GoogleCredential.fromStream(tajnaStream).createScoped(Lists.newArrayList("https://www.googleapis.com/auth/datastore"));
 
             credentials.refreshToken();
@@ -87,9 +80,9 @@ public class DohvatiRangListu extends AsyncTask<String, Void, Void> {
 
     private IDohvatiRangListeDone poziv;
 
-    public DohvatiRangListu(IDohvatiRangListeDone p, Context c){
+    public DohvatiRangListu(IDohvatiRangListeDone p, Resources resources){
         poziv = p;
-        context = c;
+        this.resources = resources;
     }
 
     @Override

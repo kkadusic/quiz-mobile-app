@@ -1,7 +1,6 @@
 package ba.unsa.etf.rma.klase;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -22,23 +21,21 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Map;
 
 import ba.unsa.etf.rma.R;
 
 public class FBWrite extends AsyncTask<String, Void, Void> {
-    @SuppressLint("StaticFieldLeak")
-    private Context context;
+    private Resources resources;
 
-    public FBWrite(Context context) {
-        this.context = context;
+    public FBWrite(Resources resources) {
+        this.resources = resources;
     }
 
     @Override
     protected Void doInBackground(String... strings) {
         GoogleCredential credentials;
         try {
-            InputStream tajnaStream = context.getResources().openRawResource(R.raw.secret);
+            InputStream tajnaStream = resources.openRawResource(R.raw.secret);
             credentials = GoogleCredential.fromStream(tajnaStream).createScoped(Lists.newArrayList("https://www.googleapis.com/auth/datastore"));
 
             credentials.refreshToken();

@@ -1,7 +1,7 @@
 package ba.unsa.etf.rma.klase;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -34,17 +34,15 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
     private Kategorija kategorija;
 
     @SuppressLint("StaticFieldLeak")
-    private Context context;
+    private Resources resources;
 
 
     @Override
     protected Void doInBackground(String... strings) {
         GoogleCredential credentials;
 
-
         try {
-
-            InputStream tajnaStream = context.getResources().openRawResource(R.raw.secret);
+            InputStream tajnaStream = resources.openRawResource(R.raw.secret);
             credentials = GoogleCredential.fromStream(tajnaStream).createScoped(Lists.newArrayList("https://www.googleapis.com/auth/datastore"));
 
             credentials.refreshToken();
@@ -80,7 +78,7 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
 
 
         try {
-            InputStream tajnaStream = context.getResources().openRawResource(R.raw.secret);
+            InputStream tajnaStream = resources.openRawResource(R.raw.secret);
             credentials = GoogleCredential.fromStream(tajnaStream).createScoped(Lists.newArrayList("https://www.googleapis.com/auth/datastore"));
 
             credentials.refreshToken();
@@ -123,9 +121,9 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
 
     private IDohvatiFilterKvizoveDone poziv;
 
-    public DohvatiKvizove2(IDohvatiFilterKvizoveDone p, Context c, Kategorija kategorija) {
+    public DohvatiKvizove2(IDohvatiFilterKvizoveDone p, Resources r, Kategorija kategorija) {
         poziv = p;
-        context = c;
+        resources = r;
         this.kategorija = kategorija;
     }
 

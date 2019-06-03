@@ -67,7 +67,7 @@ public class RangLista extends Fragment implements DohvatiRangListu.IDohvatiRang
         adapterPodaci = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1, podaci);
         lvPodaci.setAdapter(adapterPodaci);
 
-        new DohvatiRangListu(RangLista.this, getContext()).execute();
+        new DohvatiRangListu(RangLista.this, getResources()).execute();
         return view;
     }
 

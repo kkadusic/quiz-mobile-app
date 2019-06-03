@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -66,7 +65,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
         setContentView(R.layout.dodaj_kviz_akt);
 
 
-        new DohvatiPitanja(DodajKvizAkt.this, DodajKvizAkt.this).execute("blabla");
+        new DohvatiPitanja(DodajKvizAkt.this, getResources()).execute("blabla");
 
 
         final Intent intent = getIntent();
@@ -131,12 +130,12 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
                         if (naziviPitanja.size() == 0) naziviPitanja.add("");
 
 
-                        FBWrite fb = new FBWrite(DodajKvizAkt.this);
+                        FBWrite fb = new FBWrite(getResources());
                         String nazivKviza = fb.napraviPolje("naziv", trenutniKviz.getNaziv());
                         String pitanjaKviza = fb.napraviPolje("pitanja", naziviPitanja);
                         String idKategorije = fb.napraviPolje("idKategorije", trenutniKviz.getKategorija().getNaziv());
                         String dokument = fb.napraviDokument(nazivKviza, pitanjaKviza, idKategorije);
-                        new FBWrite(DodajKvizAkt.this).execute("Kvizovi", trenutniKviz.getNaziv(), dokument);
+                        new FBWrite(getResources()).execute("Kvizovi", trenutniKviz.getNaziv(), dokument);
 
                     } else
                         Toast.makeText(DodajKvizAkt.this, "Kviz sa navedenim imenom već postoji!", Toast.LENGTH_SHORT).show();
@@ -336,16 +335,16 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
                 }
 
                 if (!imaIstaKategorija) {
-                    Kategorija kategorija = new Kategorija(nazivKategorije, "920");
+                    Kategorija kategorija = new Kategorija(nazivKategorije, "565");
                     kategorije.add(kategorije.size() - 1, kategorija);
                     sAdapter.notifyDataSetChanged();
                     spKategorije.setSelection(spKategorije.getCount() - 2);
 
-                    FBWrite fb = new FBWrite(DodajKvizAkt.this);
+                    FBWrite fb = new FBWrite(getResources());
                     String poljeNaziv = fb.napraviPolje("naziv", kategorija.getNaziv());
                     String poljeId = fb.napraviPolje("idIkonice", Integer.parseInt(kategorija.getId()));
                     String dokument = fb.napraviDokument(poljeNaziv, poljeId);
-                    new FBWrite(DodajKvizAkt.this).execute("Kategorije", kategorija.getNaziv(), dokument);
+                    new FBWrite(getResources()).execute("Kategorije", kategorija.getNaziv(), dokument);
                 } else {
                     for (int i = 0; i < kategorije.size(); i++) {
                         if (kategorije.get(i).getNaziv().equals(nazivKategorije)) {
@@ -394,12 +393,12 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
                     dodana.add(new Pitanje(nazivPitanja, nazivPitanja, odgovori, tacanOdgovor));
                     adapterDodana.notifyDataSetChanged();
 
-                    FBWrite fb = new FBWrite(DodajKvizAkt.this);
+                    FBWrite fb = new FBWrite(getResources());
                     String poljeNaziv = fb.napraviPolje("naziv", nazivPitanja);
                     String poljeOdgovori = fb.napraviPolje("odgovori", odgovori);
                     String poljeIndex = fb.napraviPolje("indexTacnog", Integer.parseInt(indeksTacnogOdgovora));
                     String dokument = fb.napraviDokument(poljeNaziv, poljeIndex, poljeOdgovori);
-                    new FBWrite(DodajKvizAkt.this).execute("Pitanja", nazivPitanja, dokument);
+                    new FBWrite(getResources()).execute("Pitanja", nazivPitanja, dokument);
                 } else {
                     dajAlert("Kviz nije ispravan postoje dva pitanja sa istim nazivom!");
                     resetujPolja();

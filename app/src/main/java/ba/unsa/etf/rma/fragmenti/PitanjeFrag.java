@@ -99,7 +99,6 @@ public class PitanjeFrag extends Fragment {
         final Kviz k = intent.getParcelableExtra("kvizIgraj");
 
         if (k.getPitanja().size() != 0) {
-
             tekstPitanja.setText(k.getPitanja().get(0).getNaziv());
 
             adapterOdgovori = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1, odgovori);

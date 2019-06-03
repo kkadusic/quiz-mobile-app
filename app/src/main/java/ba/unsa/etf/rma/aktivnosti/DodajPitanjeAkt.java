@@ -139,12 +139,12 @@ public class DodajPitanjeAkt extends AppCompatActivity {
                         setResult(RESULT_OK, i);
                         finish();
 
-                        FBWrite fb = new FBWrite(DodajPitanjeAkt.this);
+                        FBWrite fb = new FBWrite(getResources());
                         String poljeNaziv = fb.napraviPolje("naziv", novoPitanje.getNaziv());
                         String poljeOdgovori = fb.napraviPolje("odgovori", novoPitanje.getOdgovori());
                         String poljeIndex = fb.napraviPolje("indexTacnog", dajIndeksTacnog(novoPitanje));
                         String dokument = fb.napraviDokument(poljeNaziv, poljeIndex, poljeOdgovori);
-                        new FBWrite(DodajPitanjeAkt.this).execute("Pitanja", novoPitanje.getNaziv(), dokument);
+                        new FBWrite(getResources()).execute("Pitanja", novoPitanje.getNaziv(), dokument);
 
                     } else
                         Toast.makeText(DodajPitanjeAkt.this, "Pitanje sa istim imenom vec postoji!", Toast.LENGTH_SHORT).show();

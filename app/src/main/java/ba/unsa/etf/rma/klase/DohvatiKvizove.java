@@ -1,7 +1,7 @@
 package ba.unsa.etf.rma.klase;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -34,7 +34,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
     private ArrayList<Kategorija> kategorije = new ArrayList<>();
 
     @SuppressLint("StaticFieldLeak")
-    private Context context;
+    private Resources resources;
 
 
     @Override
@@ -43,7 +43,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
 
         try {
 
-            InputStream tajnaStream = context.getResources().openRawResource(R.raw.secret);
+            InputStream tajnaStream = resources.openRawResource(R.raw.secret);
             credentials = GoogleCredential.fromStream(tajnaStream).createScoped(Lists.newArrayList("https://www.googleapis.com/auth/datastore"));
 
             credentials.refreshToken();
@@ -79,7 +79,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
 
         try {
 
-            InputStream tajnaStream = context.getResources().openRawResource(R.raw.secret);
+            InputStream tajnaStream = resources.openRawResource(R.raw.secret);
             credentials = GoogleCredential.fromStream(tajnaStream).createScoped(Lists.newArrayList("https://www.googleapis.com/auth/datastore"));
 
             credentials.refreshToken();
@@ -114,7 +114,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
 
 
         try {
-            InputStream tajnaStream = context.getResources().openRawResource(R.raw.secret);
+            InputStream tajnaStream = resources.openRawResource(R.raw.secret);
             credentials = GoogleCredential.fromStream(tajnaStream).createScoped(Lists.newArrayList("https://www.googleapis.com/auth/datastore"));
 
             credentials.refreshToken();
@@ -159,9 +159,9 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
 
     private IDohvatiKvizoveDone poziv;
 
-    public DohvatiKvizove(IDohvatiKvizoveDone p, Context c){
+    public DohvatiKvizove(IDohvatiKvizoveDone p, Resources resources){
         poziv = p;
-        context = c;
+        this.resources = resources;
     }
 
     @Override

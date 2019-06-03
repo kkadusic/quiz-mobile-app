@@ -53,7 +53,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         transaction2.addToBackStack(null);
         transaction2.commit();
 
-        new DohvatiRangListu(IgrajKvizAkt.this, IgrajKvizAkt.this).execute();
+        new DohvatiRangListu(IgrajKvizAkt.this, getResources()).execute();
     }
 
 
@@ -93,9 +93,9 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
             }
         }
 
-        FBWrite fb = new FBWrite(IgrajKvizAkt.this);
+        FBWrite fb = new FBWrite(getResources());
         String dokument = fb.dodajRangListu(imeIgraca, procenatTacnih, Integer.toString(pozicija), kviz.getNaziv());
-        new FBWrite(IgrajKvizAkt.this).execute("Rangliste", kviz.getNaziv() + " " + currentDateTimeString, dokument);
+        new FBWrite(getResources()).execute("Rangliste", kviz.getNaziv() + " " + currentDateTimeString, dokument);
     }
 
 

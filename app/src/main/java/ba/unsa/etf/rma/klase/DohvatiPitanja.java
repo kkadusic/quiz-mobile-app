@@ -1,7 +1,6 @@
 package ba.unsa.etf.rma.klase;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -29,9 +28,7 @@ import ba.unsa.etf.rma.dto.Pitanje;
 public class DohvatiPitanja extends AsyncTask<String, Void, Void> {
 
     private ArrayList<Pitanje> moguca = new ArrayList<>();
-
-    @SuppressLint("StaticFieldLeak")
-    private Context context;
+    private Resources resources;
 
     public interface IDohvatiPitanjaDone {
         void onDohvatiDone(ArrayList<Pitanje> lista);
@@ -39,9 +36,9 @@ public class DohvatiPitanja extends AsyncTask<String, Void, Void> {
 
     private IDohvatiPitanjaDone poziv;
 
-    public DohvatiPitanja(IDohvatiPitanjaDone p, Context c){
+    public DohvatiPitanja(IDohvatiPitanjaDone p, Resources resources){
         poziv = p;
-        context = c;
+        this.resources = resources;
     }
 
 
@@ -50,7 +47,7 @@ public class DohvatiPitanja extends AsyncTask<String, Void, Void> {
         GoogleCredential credentials;
 
         try {
-            InputStream tajnaStream = context.getResources().openRawResource(R.raw.secret);
+            InputStream tajnaStream = resources.openRawResource(R.raw.secret);
             credentials = GoogleCredential.fromStream(tajnaStream).createScoped(Lists.newArrayList("https://www.googleapis.com/auth/datastore"));
 
             credentials.refreshToken();

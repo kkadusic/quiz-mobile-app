@@ -18,7 +18,6 @@ import ba.unsa.etf.rma.klase.DohvatiKvizove;
 import ba.unsa.etf.rma.klase.DohvatiKvizove2;
 import ba.unsa.etf.rma.dto.Kategorija;
 import ba.unsa.etf.rma.dto.Kviz;
-import ba.unsa.etf.rma.klase.DohvatiRangListu;
 
 public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDohvatiKvizoveDone, DohvatiKvizove2.IDohvatiFilterKvizoveDone {
 
@@ -44,7 +43,7 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         setContentView(R.layout.kvizovi_akt);
 
 
-        new DohvatiKvizove(KvizoviAkt.this, KvizoviAkt.this).execute();
+        new DohvatiKvizove(KvizoviAkt.this, getResources()).execute();
 
 
         lvKvizovi = findViewById(R.id.lvKvizovi);
@@ -106,11 +105,11 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
                         prikazaniKvizovi.addAll(sviKvizovi);
                         adapter.notifyDataSetChanged();
                         */
-                        new DohvatiKvizove(KvizoviAkt.this, KvizoviAkt.this).execute();
+                        new DohvatiKvizove(KvizoviAkt.this, getResources()).execute();
                     } else {
                         prikazaniKvizovi.clear();
                         adapter.notifyDataSetChanged();
-                        new DohvatiKvizove2(KvizoviAkt.this, KvizoviAkt.this, kategorija).execute();
+                        new DohvatiKvizove2(KvizoviAkt.this, getResources(), kategorija).execute();
                     }
                 }
             }
