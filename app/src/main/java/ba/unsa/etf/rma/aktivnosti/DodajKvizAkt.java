@@ -129,6 +129,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
                         for (Pitanje p : trenutniKviz.getPitanja()) {
                             naziviPitanja.add(p.getNaziv());
                         }
+                        if (naziviPitanja.size() == 0) naziviPitanja.add("");
 
 
                         FBWrite fb = new FBWrite(DodajKvizAkt.this);

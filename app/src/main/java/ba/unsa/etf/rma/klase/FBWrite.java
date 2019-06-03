@@ -56,7 +56,6 @@ public class FBWrite extends AsyncTask<String, Void, Void> {
             String dokument = strings[2];
 
 
-
             try (OutputStream os = conn.getOutputStream()){
                 byte[] input = dokument.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
