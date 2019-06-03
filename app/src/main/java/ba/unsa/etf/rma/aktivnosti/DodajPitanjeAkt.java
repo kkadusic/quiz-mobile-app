@@ -41,7 +41,6 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dodaj_pitanje_akt);
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         etNaziv = findViewById(R.id.etNaziv);
         etOdgovor = findViewById(R.id.etOdgovor);
@@ -176,9 +175,9 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         return etNaziv.getText().length() != 0 && novoPitanje.getTacan() != null;
     }
 
-    int dajIndeksTacnog(Pitanje p){
+    int dajIndeksTacnog(Pitanje p) {
         int indeksTacnog = 0;
-        for (int i = 0; i < p.getOdgovori().size(); i++){
+        for (int i = 0; i < p.getOdgovori().size(); i++) {
             if (p.getOdgovori().get(i).equals(p.getTacan()))
                 indeksTacnog = i;
         }

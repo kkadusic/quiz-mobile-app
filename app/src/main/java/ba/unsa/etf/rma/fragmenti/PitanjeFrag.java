@@ -119,7 +119,7 @@ public class PitanjeFrag extends Fragment {
                 }
                 else {
                     view.setBackgroundColor(RED);
-                    // todo dodati da stavi zeleno na tacan
+                    // Dodati da stavi zeleno na tacan
                 }
 
                 double procenat = ((double) BROJAC_TACNIH / (BROJAC_PITANJA + 1)) * 100;

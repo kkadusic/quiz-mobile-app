@@ -36,10 +36,6 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
     @SuppressLint("StaticFieldLeak")
     private Context context;
 
-    public DohvatiKvizove(Context context) {
-        this.context = context;
-    }
-
 
     @Override
     protected Void doInBackground(String... strings) {
@@ -75,7 +71,6 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
             rezultat = "{ \"documents\": " + rezultat + "}";
 
             parsirajKategorije(rezultat);
-            Log.d("TAG-kategorije", rezultat);
         }
         catch(IOException e){
             e.printStackTrace();
@@ -112,7 +107,6 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
             rezultat = "{ \"documents\": " + rezultat + "}";
 
             parsirajPitanja(rezultat);
-            Log.d("TAG-pitanja", rezultat);
         }
         catch(IOException e){
             e.printStackTrace();
@@ -146,10 +140,9 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
             InputStream in = conn.getInputStream();
             String rezultat = convertStreamToString(in);
             rezultat = "{ \"documents\": " + rezultat + "}";
-            Log.d("TAG-kvizovi", rezultat);
-
 
             parsirajKvizove(rezultat);
+
             Log.d("TOKEN", TOKEN);
 
         } catch(IOException e){
@@ -208,30 +201,20 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
 
             for (int i = 0; i < documents.length(); i++) {
                 JSONObject doc = documents.getJSONObject(i);
-                Log.d("TAG-DOC1", doc.toString());
 
                 JSONObject doc2 = new JSONObject(doc.getString("document"));
-                Log.d("TAG-DOC2", doc2.toString());
 
                 JSONObject fields = new JSONObject(doc2.getString("fields"));
-                Log.d("TAG-FIELDS", fields.toString());
 
                 JSONObject naziv = new JSONObject(fields.getString("naziv"));
-                Log.d("TAG-NAZIV", naziv.getString("stringValue"));
 
-                //JSONObject fields2 = new JSONObject(fields.getString("idKategorije"));
-                //Log.d("TAG-FIELDS2", fields2.toString());
 
-                //JSONObject naziv = new JSONObject(fields2.getString("naziv"));
-                //Log.d("TAG-NAZIV", naziv.getString("stringValue"));
 
                 JSONObject idKategorije = new JSONObject(fields.getString("idKategorije"));
-                Log.d("TAG-IDKATEGORIJE", idKategorije.getString("stringValue"));
 
                 JSONObject odgovori = new JSONObject(fields.getString("pitanja"));
                 JSONObject arrayValue = new JSONObject(odgovori.getString("arrayValue"));
                 JSONArray values = arrayValue.getJSONArray("values");
-                Log.d("TAG-PITANJA", values.toString());
 
                 Kviz kviz = new Kviz();
                 kviz.setNaziv(naziv.getString("stringValue"));
@@ -243,7 +226,6 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
                     }
                 }
 
-
                 for (Pitanje p : pitanja){
                     for (int j=0; j<values.length(); j++){
                         JSONObject pitanje = values.getJSONObject(j);
@@ -254,10 +236,6 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
 
                 kvizovi.add(kviz);
             }
-            for (Kviz k : kvizovi){
-                Log.d("TAG-LISTAKVIZOVA", k.toString());
-            }
-
 
         } catch (JSONException e){
             e.printStackTrace();
@@ -272,25 +250,19 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
 
             for (int i = 0; i < documents.length(); i++) {
                 JSONObject doc = documents.getJSONObject(i);
-                // Log.d("TAG-DOC1", doc.toString());
 
                 JSONObject doc2 = new JSONObject(doc.getString("document"));
-                // Log.d("TAG-DOC2", doc2.toString());
 
                 JSONObject fields = new JSONObject(doc2.getString("fields"));
-                // Log.d("TAG-FIELDS", fields.toString());
 
                 JSONObject naziv = new JSONObject(fields.getString("naziv"));
-                // Log.d("TAG-NAZIV", naziv.getString("stringValue"));
 
                 JSONObject indexTacnog = new JSONObject(fields.getString("indexTacnog"));
-                // Log.d("TAG-INDEX", indexTacnog.getString("integerValue"));
                 int indeks = indexTacnog.getInt("integerValue");
 
                 JSONObject odgovori = new JSONObject(fields.getString("odgovori"));
                 JSONObject arrayValue = new JSONObject(odgovori.getString("arrayValue"));
                 JSONArray values = arrayValue.getJSONArray("values");
-                // Log.d("TAG-ODGOVORI", values.toString());
 
                 Pitanje pitanje = new Pitanje();
 
@@ -305,7 +277,6 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
                 pitanje.setTekstPitanja(naziv.getString("stringValue"));
                 pitanja.add(pitanje);
             }
-            Log.d("TAG-SVA-PITANJA", pitanja.toString());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -327,10 +298,8 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
                 JSONObject fields = new JSONObject(doc2.getString("fields"));
 
                 JSONObject naziv = new JSONObject(fields.getString("naziv"));
-                 Log.d("TAG-NAZIV", naziv.getString("stringValue"));
 
                 JSONObject idIkonice = new JSONObject(fields.getString("idIkonice"));
-                 Log.d("TAG-INDEX", idIkonice.getString("integerValue"));
                 int indeks = idIkonice.getInt("integerValue");
 
                 Kategorija kategorija = new Kategorija();
@@ -338,7 +307,6 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
                 kategorija.setNaziv(naziv.getString("stringValue"));
                 kategorije.add(kategorija);
             }
-            Log.d("TAG-SVE-KATEGORIJE", kategorije.toString());
 
         } catch (JSONException e) {
             e.printStackTrace();

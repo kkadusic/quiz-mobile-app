@@ -22,8 +22,9 @@
 
         <Spinner
             android:id="@+id/spPostojeceKategorije"
+            style="@style/Widget.AppCompat.Spinner.Underlined"
             android:layout_width="match_parent"
-            android:layout_height="42dp" />
+            android:layout_height="55dp" />
 
         <ListView
             android:id="@+id/lvKvizovi"

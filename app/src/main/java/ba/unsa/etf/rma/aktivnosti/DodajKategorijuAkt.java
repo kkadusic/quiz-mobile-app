@@ -1,5 +1,7 @@
 package ba.unsa.etf.rma.aktivnosti;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -64,8 +66,11 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
                         String dokument = fb.napraviDokument(poljeNaziv, poljeId);
                         new FBWrite(DodajKategorijuAkt.this).execute("Kategorije", novaKategorija.getNaziv(), dokument);
 
-                    } else
+                    } else {
                         Toast.makeText(DodajKategorijuAkt.this, "Unesena kategorija već postoji!", Toast.LENGTH_SHORT).show();
+                        dajAlert("Unesena kategorija već postoji!");
+                    }
+
                 } else {
                     if (etNaziv.getText().toString().length() == 0)
                         etNaziv.setError("Unesite naziv kategorije!");
@@ -93,5 +98,18 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
     public void onIconDialogIconsSelected(Icon[] icons) {
         selectedIcons = icons;
         etIkona.setText(String.valueOf(selectedIcons[0].getId()));
+    }
+
+    public void dajAlert(String poruka) {
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle("Greska");
+        alertDialog.setMessage(poruka);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
 }

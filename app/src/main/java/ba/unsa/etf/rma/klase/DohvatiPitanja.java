@@ -26,13 +26,23 @@ import java.util.ArrayList;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.dto.Pitanje;
 
-public class Firebase extends AsyncTask<String, Void, Void> {
+public class DohvatiPitanja extends AsyncTask<String, Void, Void> {
 
     private ArrayList<Pitanje> moguca = new ArrayList<>();
 
     @SuppressLint("StaticFieldLeak")
     private Context context;
 
+    public interface IDohvatiPitanjaDone {
+        void onDohvatiDone(ArrayList<Pitanje> lista);
+    }
+
+    private IDohvatiPitanjaDone poziv;
+
+    public DohvatiPitanja(IDohvatiPitanjaDone p, Context c){
+        poziv = p;
+        context = c;
+    }
 
 
     @Override
@@ -79,18 +89,6 @@ public class Firebase extends AsyncTask<String, Void, Void> {
     }
 
 
-    public interface IDohvatiPitanjaDone {
-        void onDohvatiDone(ArrayList<Pitanje> lista);
-    }
-
-    private IDohvatiPitanjaDone poziv;
-
-    public Firebase(IDohvatiPitanjaDone p, Context c){
-        poziv = p;
-        context = c;
-    }
-
-
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
@@ -98,9 +96,6 @@ public class Firebase extends AsyncTask<String, Void, Void> {
             poziv.onDohvatiDone(moguca);
         }
     }
-
-
-
 
 
     private String convertStreamToString(InputStream is) {
@@ -132,25 +127,19 @@ public class Firebase extends AsyncTask<String, Void, Void> {
 
             for (int i = 0; i < documents.length(); i++) {
                 JSONObject doc = documents.getJSONObject(i);
-                // Log.d("TAG-DOC1", doc.toString());
 
                 JSONObject doc2 = new JSONObject(doc.getString("document"));
-                // Log.d("TAG-DOC2", doc2.toString());
 
                 JSONObject fields = new JSONObject(doc2.getString("fields"));
-                // Log.d("TAG-FIELDS", fields.toString());
 
                 JSONObject naziv = new JSONObject(fields.getString("naziv"));
-                // Log.d("TAG-NAZIV", naziv.getString("stringValue"));
 
                 JSONObject indexTacnog = new JSONObject(fields.getString("indexTacnog"));
-                // Log.d("TAG-INDEX", indexTacnog.getString("integerValue"));
                 int indeks = indexTacnog.getInt("integerValue");
 
                 JSONObject odgovori = new JSONObject(fields.getString("odgovori"));
                 JSONObject arrayValue = new JSONObject(odgovori.getString("arrayValue"));
                 JSONArray values = arrayValue.getJSONArray("values");
-                // Log.d("TAG-ODGOVORI", values.toString());
 
                 Pitanje pitanje = new Pitanje();
 
@@ -181,55 +170,5 @@ public class Firebase extends AsyncTask<String, Void, Void> {
                 "    }" +
                 "}";
     }
-
-    private String queryKvizovi(){
-        return "{" +
-                "    \"structuredQuery\": {" +
-                "        \"select\": { \"fields\": [ {\"fieldPath\": \"idKategorije\"}, {\"fieldPath\": \"naziv\"}, {\"fieldPath\": \"pitanja\"}] }," +
-                "        \"from\": [{\"collectionId\": \"Kvizovi\"}]," +
-                "       \"limit\": 1000 " +
-                "    }" +
-                "}";
-    }
-
-
-
-    /*
-    BEZVEZE
-            String query1 = "{\n" +
-                    "    \"structuredQuery\": {\n" +
-                    "        \"where\" : {\n" +
-                    "            \"fieldFilter\" : { \n" +
-                    "                \"field\": {\"fieldPath\": \"idKategorije\"}, \n" +
-                    "                \"op\":\"EQUAL\", \n" +
-                    "                \"value\": {\"stringValue\": \"" + "27" + "\"}\n" +
-                    "            }\n" +
-                    "        },\n" +
-                    "        \"select\": { \"fields\": [ {\"fieldPath\": \"idKategorije\"}, {\"fieldPath\": \"naziv\"}, {\"fieldPath\": \"pitanja\"}] },\n" +
-                    "        \"from\": [{\"collectionId\": \"Kvizovi\"}],\n" +
-                    "       \"limit\": 1000 \n" +
-                    "    }\n" +
-                    "}";
-
-                  String query2 = "{" +
-                    "\"structuredQuery\": {" +
-                    "\"select\": { \"fields\": [ {\"fieldPath\": \"indexTacnog\"}, {\"fieldPath\": \"naziv\"}, {\"fieldPath\": \"odgovori\"}] }," +
-                    "\"from\": [{\"collectionId\": \"Pitanja\"}]," +
-                    "\"limit\": 1000 " +
-                    "}" +
-                    "}";
-
-
-
-            String query = "{\n" +
-                    "    \"structuredQuery\": {\n" +
-                    "        \"select\": { \"fields\": [ {\"fieldPath\": \"indexTacnog\"}, {\"fieldPath\": \"naziv\"}, {\"fieldPath\": \"odgovori\"}] },\n" +
-                    "        \"from\": [{\"collectionId\": \"Pitanja\"}],\n" +
-                    "       \"limit\": 1000 \n" +
-                    "    }\n" +
-                    "}";
-
-            */
-
 
 }

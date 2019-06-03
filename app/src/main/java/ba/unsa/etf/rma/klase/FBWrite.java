@@ -71,7 +71,6 @@ public class FBWrite extends AsyncTask<String, Void, Void> {
                 while ((responseLine = br.readLine()) != null){
                     response.append(responseLine.trim());
                 }
-                Log.d("ODGOVOR", response.toString());
             }
 
             Log.d("TOKEN", TOKEN);
@@ -178,27 +177,6 @@ public class FBWrite extends AsyncTask<String, Void, Void> {
         dokument += "}";
 
         return dokument;
-    }
-
-    public String napraviPolje (String nazivMape, Map<String, Map<String, String>> lista, Map<String, String> igrac){ // nazivMape = lista
-        String dokument = "\"" + nazivMape + "\": ";
-
-
-
-        JSONObject json = new JSONObject();
-
-
-
-        JSONObject obj = new JSONObject();
-        JSONObject obj3 = new JSONObject();
-        try {
-            obj.put("mapValue", obj3);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
-        return null;
     }
 
 

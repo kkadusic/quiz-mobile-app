@@ -36,11 +36,6 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
     @SuppressLint("StaticFieldLeak")
     private Context context;
 
-    public DohvatiKvizove2(Context context, Kategorija kategorija) {
-        this.context = context;
-        this.kategorija = kategorija;
-    }
-
 
     @Override
     protected Void doInBackground(String... strings) {
@@ -67,19 +62,19 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
             conn.setRequestProperty("Accept", "application/json");
 
 
-            try (OutputStream os = conn.getOutputStream()){
+            try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = query.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
+
             int code = conn.getResponseCode(); // response kod
             InputStream in = conn.getInputStream();
             String rezultat = convertStreamToString(in);
             rezultat = "{ \"documents\": " + rezultat + "}";
 
             parsirajPitanja(rezultat);
-            Log.d("TAG-pitanja", rezultat);
-        }
-        catch(IOException e){
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -103,7 +98,7 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
             conn.setRequestProperty("Accept", "application/json");
 
 
-            try (OutputStream os = conn.getOutputStream()){
+            try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = query.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
@@ -112,13 +107,9 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
             String rezultat = convertStreamToString(in);
             rezultat = "{ \"documents\": " + rezultat + "}";
 
-            Log.d("TAG-FILTER-KVIZOVI", rezultat);
-
-
             parsirajKvizove(rezultat);
-            Log.d("TOKEN", TOKEN);
 
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -132,7 +123,7 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
 
     private IDohvatiFilterKvizoveDone poziv;
 
-    public DohvatiKvizove2(IDohvatiFilterKvizoveDone p, Context c, Kategorija kategorija){
+    public DohvatiKvizove2(IDohvatiFilterKvizoveDone p, Context c, Kategorija kategorija) {
         poziv = p;
         context = c;
         this.kategorija = kategorija;
@@ -168,29 +159,20 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
     }
 
 
-    public void parsirajKvizove(String rezultat){
+    public void parsirajKvizove(String rezultat) {
         try {
             JSONObject obj = new JSONObject(rezultat);
             JSONArray documents = obj.getJSONArray("documents");
 
             for (int i = 0; i < documents.length(); i++) {
                 JSONObject doc = documents.getJSONObject(i);
-                Log.d("TAG-DOC1", doc.toString());
 
                 JSONObject doc2 = new JSONObject(doc.getString("document"));
-                Log.d("TAG-DOC2", doc2.toString());
 
                 JSONObject fields = new JSONObject(doc2.getString("fields"));
-                Log.d("TAG-FIELDS", fields.toString());
 
                 JSONObject naziv = new JSONObject(fields.getString("naziv"));
-                Log.d("TAG-NAZIV", naziv.getString("stringValue"));
 
-                //JSONObject fields2 = new JSONObject(fields.getString("idKategorije"));
-                //Log.d("TAG-FIELDS2", fields2.toString());
-
-                //JSONObject naziv = new JSONObject(fields2.getString("naziv"));
-                //Log.d("TAG-NAZIV", naziv.getString("stringValue"));
 
                 JSONObject idKategorije = new JSONObject(fields.getString("idKategorije"));
                 Log.d("TAG-IDKATEGORIJE", idKategorije.getString("stringValue"));
@@ -198,7 +180,6 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
                 JSONObject odgovori = new JSONObject(fields.getString("pitanja"));
                 JSONObject arrayValue = new JSONObject(odgovori.getString("arrayValue"));
                 JSONArray values = arrayValue.getJSONArray("values");
-                Log.d("TAG-PITANJA", values.toString());
 
                 Kviz kviz = new Kviz();
                 kviz.setNaziv(naziv.getString("stringValue"));
@@ -206,8 +187,8 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
                 kviz.setKategorija(kategorija);
 
 
-                for (Pitanje p : pitanja){
-                    for (int j=0; j<values.length(); j++){
+                for (Pitanje p : pitanja) {
+                    for (int j = 0; j < values.length(); j++) {
                         JSONObject pitanje = values.getJSONObject(j);
                         if (p.getNaziv().equals(pitanje.getString("stringValue")))
                             kviz.getPitanja().add(p);
@@ -216,18 +197,14 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
 
                 kvizovi.add(kviz);
             }
-            for (Kviz k : kvizovi){
-                Log.d("TAG-LISTAKVIZOVA", k.toString());
-            }
 
-
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
 
-    public void parsirajPitanja(String rezultat){
+    public void parsirajPitanja(String rezultat) {
         try {
             JSONObject obj = new JSONObject(rezultat);
             JSONArray documents = obj.getJSONArray("documents");
@@ -256,7 +233,7 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
 
                 Pitanje pitanje = new Pitanje();
 
-                for (int j = 0; j < values.length(); j++){
+                for (int j = 0; j < values.length(); j++) {
                     JSONObject odgovor = values.getJSONObject(j);
                     if (indeks == j)
                         pitanje.setTacan(odgovor.getString("stringValue"));
@@ -275,8 +252,7 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
     }
 
 
-
-    private String queryPitanja(){
+    private String queryPitanja() {
         return "{" +
                 "    \"structuredQuery\": {" +
                 "        \"select\": { \"fields\": [ {\"fieldPath\": \"indexTacnog\"}, {\"fieldPath\": \"odgovori\"}, {\"fieldPath\": \"naziv\"}] }," +
@@ -287,7 +263,7 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
     }
 
 
-    private String queryFiltriraniKvizovi(){
+    private String queryFiltriraniKvizovi() {
         return "{\n" +
                 "    \"structuredQuery\": {\n" +
                 "        \"where\" : {\n" +

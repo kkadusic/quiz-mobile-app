@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -29,14 +28,14 @@ import java.util.ArrayList;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.MyAdapter;
 import ba.unsa.etf.rma.klase.FBWrite;
-import ba.unsa.etf.rma.klase.Firebase;
+import ba.unsa.etf.rma.klase.DohvatiPitanja;
 import ba.unsa.etf.rma.dto.Kategorija;
 import ba.unsa.etf.rma.dto.Kviz;
 import ba.unsa.etf.rma.dto.Pitanje;
 
 import static ba.unsa.etf.rma.aktivnosti.KvizoviAkt.AZURIRAJ_KVIZ;
 
-public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvatiPitanjaDone {
+public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.IDohvatiPitanjaDone {
 
     static final int DODAJ_PITANJE = 200;
     static final int DODAJ_KATEGORIJU = 300;
@@ -66,16 +65,11 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dodaj_kviz_akt);
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-
-
-        new Firebase(DodajKvizAkt.this, DodajKvizAkt.this).execute("blabla");
-
+        new DohvatiPitanja(DodajKvizAkt.this, DodajKvizAkt.this).execute("blabla");
 
 
         final Intent intent = getIntent();
-
         kvizovi = intent.getParcelableArrayListExtra("kvizovi");
         kategorije = intent.getParcelableArrayListExtra("kategorije");
 
@@ -102,7 +96,6 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
         dodana = new ArrayList<>(trenutniKviz.getPitanja());
         adapterDodana = new MyAdapter(this, dodana, getResources());
         lvDodanaPitanja.setAdapter(adapterDodana);
-
 
 
         adapterMoguca = new ArrayAdapter<>(this, R.layout.element_liste, R.id.naziv, moguca);
@@ -133,7 +126,7 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
                         finish();
 
                         ArrayList<String> naziviPitanja = new ArrayList<>(); // id-evi Pitanja
-                        for (Pitanje p : trenutniKviz.getPitanja()){
+                        for (Pitanje p : trenutniKviz.getPitanja()) {
                             naziviPitanja.add(p.getNaziv());
                         }
 
@@ -283,13 +276,6 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
 
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home)
-            onBackPressed();
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onBackPressed() {
         Intent i = new Intent();
         i.putParcelableArrayListExtra("kategorije", kategorije);
@@ -299,13 +285,12 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
 
     @Override
     public void onDohvatiDone(ArrayList<Pitanje> svaPitanja) {
-        for (Pitanje p : svaPitanja){
+        for (Pitanje p : svaPitanja) {
             if (!dodana.contains(p))
                 moguca.add(p);
         }
         adapterMoguca.notifyDataSetChanged();
     }
-
 
 
     public void performFileSearch() {
@@ -336,11 +321,10 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
                 String nazivKategorije = values[1];
                 int brojPitanja = Integer.valueOf(values[2]);
 
-                for (int i=0; i<kvizovi.size(); i++){
-                    if (kvizovi.get(i).getNaziv().equals(nazivKviza)){
+                for (int i = 0; i < kvizovi.size(); i++) {
+                    if (kvizovi.get(i).getNaziv().equals(nazivKviza)) {
                         dajAlert("Kviz kojeg importujete već postoji!");
-                    }
-                    else {
+                    } else {
                         etNaziv.setText(nazivKviza);
                     }
                 }
@@ -354,18 +338,17 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
 
                 if (!imaIstaKategorija) {
                     Kategorija kategorija = new Kategorija(nazivKategorije, "920");
-                    kategorije.add(kategorije.size()-1, kategorija);
+                    kategorije.add(kategorije.size() - 1, kategorija);
                     sAdapter.notifyDataSetChanged();
-                    spKategorije.setSelection(spKategorije.getCount()-2);
+                    spKategorije.setSelection(spKategorije.getCount() - 2);
 
                     FBWrite fb = new FBWrite(DodajKvizAkt.this);
                     String poljeNaziv = fb.napraviPolje("naziv", kategorija.getNaziv());
                     String poljeId = fb.napraviPolje("idIkonice", Integer.parseInt(kategorija.getId()));
                     String dokument = fb.napraviDokument(poljeNaziv, poljeId);
                     new FBWrite(DodajKvizAkt.this).execute("Kategorije", kategorija.getNaziv(), dokument);
-                }
-                else {
-                    for (int i=0; i<kategorije.size(); i++){
+                } else {
+                    for (int i = 0; i < kategorije.size(); i++) {
                         if (kategorije.get(i).getNaziv().equals(nazivKategorije)) {
                             spKategorije.setSelection(i);
                             break;
@@ -396,12 +379,10 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
                     if (values[i].contains(",")) {
                         dajAlert("Odgovor sadrži zarez");
                         resetujPolja();
-                    }
-                    else if (odgovori.contains(values[i])) {
+                    } else if (odgovori.contains(values[i])) {
                         dajAlert("Kviz kojeg importujete nije ispravan postoji ponavljanje odgovora!");
                         resetujPolja();
-                    }
-                    else
+                    } else
                         odgovori.add(values[i]);
                 }
 
@@ -420,8 +401,7 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
                     String poljeIndex = fb.napraviPolje("indexTacnog", Integer.parseInt(indeksTacnogOdgovora));
                     String dokument = fb.napraviDokument(poljeNaziv, poljeIndex, poljeOdgovori);
                     new FBWrite(DodajKvizAkt.this).execute("Pitanja", nazivPitanja, dokument);
-                }
-                else {
+                } else {
                     dajAlert("Kviz nije ispravan postoje dva pitanja sa istim nazivom!");
                     resetujPolja();
                 }
@@ -449,7 +429,7 @@ public class DodajKvizAkt extends AppCompatActivity implements Firebase.IDohvati
         return ukupanBrojLinija;
     }
 
-    public void resetujPolja(){
+    public void resetujPolja() {
         etNaziv.setText("");
 
         dodana.clear();

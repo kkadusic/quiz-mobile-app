@@ -1,9 +1,6 @@
 package ba.unsa.etf.rma.aktivnosti;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -48,12 +45,6 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
 
 
         new DohvatiKvizove(KvizoviAkt.this, KvizoviAkt.this).execute();
-        // new DohvatiRangListu(KvizoviAkt.this).execute();
-
-
-        Configuration config = getResources().getConfiguration();
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
 
         lvKvizovi = findViewById(R.id.lvKvizovi);
@@ -66,15 +57,15 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         spPostojeceKategorije.setAdapter(sAdapter);
 
         lvFooterView.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                Intent intent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
-                                                intent.putParcelableArrayListExtra("kategorije", kategorije);
-                                                intent.putParcelableArrayListExtra("kvizovi", sviKvizovi);
-                                                intent.putExtra("requestCode", DODAJ_KVIZ);
-                                                startActivityForResult(intent, DODAJ_KVIZ);
-                                            }
-                                        }
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
+                intent.putParcelableArrayListExtra("kategorije", kategorije);
+                intent.putParcelableArrayListExtra("kvizovi", sviKvizovi);
+                intent.putExtra("requestCode", DODAJ_KVIZ);
+                startActivityForResult(intent, DODAJ_KVIZ);
+            }
+        }
         );
 
         lvKvizovi.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -91,11 +82,6 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         });
 
 
-
-
-
-
-
         lvKvizovi.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -106,12 +92,6 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
                 //startActivityForResult(intent, IGRAJ_KVIZ);
             }
         });
-
-
-
-
-
-
 
 
         spPostojeceKategorije.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -127,15 +107,12 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
                         adapter.notifyDataSetChanged();
                         */
                         new DohvatiKvizove(KvizoviAkt.this, KvizoviAkt.this).execute();
-                    }
-                    else {
+                    } else {
                         prikazaniKvizovi.clear();
                         adapter.notifyDataSetChanged();
                         new DohvatiKvizove2(KvizoviAkt.this, KvizoviAkt.this, kategorija).execute();
                     }
-
                 }
-
             }
 
             @Override
@@ -201,7 +178,7 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         adapter.notifyDataSetChanged();
 
         kategorije.clear();
-        for (Kategorija k : listaKategorija){
+        for (Kategorija k : listaKategorija) {
             if (k.getNaziv().equals("Svi")) {
                 kategorije.add(k);
                 listaKategorija.remove(k);

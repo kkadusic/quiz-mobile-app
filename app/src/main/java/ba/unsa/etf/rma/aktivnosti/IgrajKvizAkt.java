@@ -10,7 +10,6 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import ba.unsa.etf.rma.R;
-import ba.unsa.etf.rma.dto.Ranglista;
 import ba.unsa.etf.rma.fragmenti.InformacijeFrag;
 import ba.unsa.etf.rma.fragmenti.PitanjeFrag;
 import ba.unsa.etf.rma.fragmenti.RangLista;
@@ -19,7 +18,7 @@ import ba.unsa.etf.rma.dto.Kviz;
 
 public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFragmentInteractionListener,
         InformacijeFrag.OnFragmentInteractionListener, PitanjeFrag.OnCompleteListener, RangLista.OnFragmentInteractionListener,
-        PitanjeFrag.OnZamijenaListener{
+        PitanjeFrag.OnZamijenaListener {
 
     private Kviz kviz;
 
@@ -50,12 +49,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
     }
 
 
-    public void sendText(String text){
-        InformacijeFrag frag = (InformacijeFrag) getSupportFragmentManager().findFragmentById(R.id.informacijePlace);
-        frag.updateText(text);
-    }
-
-    public void zamijeniFragmente(){
+    public void zamijeniFragmente() {
         RangLista rangListaFragment = new RangLista();
         FragmentTransaction transaction2 = getSupportFragmentManager().beginTransaction();
 
@@ -63,7 +57,6 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         transaction2.addToBackStack(null);
         transaction2.commit();
     }
-
 
 
     @Override

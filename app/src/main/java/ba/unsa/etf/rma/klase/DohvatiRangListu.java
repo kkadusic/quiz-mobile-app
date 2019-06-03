@@ -137,7 +137,6 @@ public class DohvatiRangListu extends AsyncTask<String, Void, Void> {
 
                 JSONObject nazivKviza = new JSONObject(fields.getString("nazivKviza"));
                 String NAZIV_KVIZA = nazivKviza.getString("stringValue");
-                Log.d("NAZIV KVIZA", NAZIV_KVIZA);
                 ranglista.setNazivKviza(NAZIV_KVIZA);
 
                 JSONObject lista = new JSONObject(fields.getString("lista"));
@@ -148,7 +147,6 @@ public class DohvatiRangListu extends AsyncTask<String, Void, Void> {
 
                 JSONObject pozicija = new JSONObject(fields2.getString("pozicija"));
                 String POZICIJA = pozicija.getString("stringValue");
-                Log.d("POZICIJA", POZICIJA);
                 ranglista.setPozicija(POZICIJA);
 
                 JSONObject igrac = new JSONObject(fields2.getString("igrac"));
@@ -159,18 +157,13 @@ public class DohvatiRangListu extends AsyncTask<String, Void, Void> {
 
                 JSONObject procenatTacnih = new JSONObject(fields3.getString("procenatTacnih"));
                 String PROCENAT_TACNIH = procenatTacnih.getString("stringValue");
-                Log.d("PROCENAT TACNIH", PROCENAT_TACNIH);
                 ranglista.setProcenatTacnih(PROCENAT_TACNIH);
 
                 JSONObject nazivIgraca = new JSONObject(fields3.getString("nazivIgraca"));
                 String NAZIV_IGRACA = nazivIgraca.getString("stringValue");
-                Log.d("NAZIV IGRACA", NAZIV_IGRACA);
                 ranglista.setNazivIgraca(NAZIV_IGRACA);
 
                 rangliste.add(ranglista);
-            }
-            for (int i=0; i<rangliste.size(); i++){
-                Log.d("TAG-RANGLISTE-SVE", rangliste.get(i).toString());
             }
         } catch (JSONException e) {
             e.printStackTrace();

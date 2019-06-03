@@ -29,14 +29,12 @@ public class InformacijeFrag extends Fragment {
     private TextView infProcenatTacni;
     private Button btnKraj;
 
-
     private String mParam1;
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
 
     public InformacijeFrag() {
-        // Required empty public constructor
     }
 
 
@@ -56,14 +54,13 @@ public class InformacijeFrag extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
         FragmentManager fm = getFragmentManager();
         PitanjeFrag f = (PitanjeFrag) fm.findFragmentByTag("pitanjeFrag");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-       View view = inflater.inflate(R.layout.fragment_informacije, container, false);
+        View view = inflater.inflate(R.layout.fragment_informacije, container, false);
 
         infNazivKviza = view.findViewById(R.id.infNazivKviza);
         infBrojTacnihPitanja = view.findViewById(R.id.infBrojTacnihPitanja);
@@ -74,7 +71,7 @@ public class InformacijeFrag extends Fragment {
         Intent i = getActivity().getIntent();
         Kviz k = i.getParcelableExtra("kvizIgraj");
 
-        btnKraj.setOnClickListener( new View.OnClickListener() {
+        btnKraj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), KvizoviAkt.class);
@@ -96,22 +93,9 @@ public class InformacijeFrag extends Fragment {
             infProcenatTacni.setText(informacije.get(2));
         }
 
-
         return view;
     }
 
-
-
-
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    public void updateText(String text){
-        infBrojPreostalihPitanja.setText(text);
-    }
 
     @Override
     public void onAttach(Context context) {
