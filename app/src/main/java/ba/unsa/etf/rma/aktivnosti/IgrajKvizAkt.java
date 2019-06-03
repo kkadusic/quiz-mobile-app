@@ -7,20 +7,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.dto.Ranglista;
 import ba.unsa.etf.rma.fragmenti.InformacijeFrag;
 import ba.unsa.etf.rma.fragmenti.PitanjeFrag;
 import ba.unsa.etf.rma.fragmenti.RangLista;
+import ba.unsa.etf.rma.klase.DohvatiRangListu;
 import ba.unsa.etf.rma.klase.FBWrite;
 import ba.unsa.etf.rma.dto.Kviz;
 
 public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFragmentInteractionListener,
         InformacijeFrag.OnFragmentInteractionListener, PitanjeFrag.OnCompleteListener, RangLista.OnFragmentInteractionListener,
-        PitanjeFrag.OnZamijenaListener {
+        PitanjeFrag.OnZamijenaListener, DohvatiRangListu.IDohvatiRangListeDone {
 
     private Kviz kviz;
+    private ArrayList<Ranglista> rangliste = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +52,8 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         transaction2.replace(R.id.pitanjePlace, pitanjeFrag);
         transaction2.addToBackStack(null);
         transaction2.commit();
+
+        new DohvatiRangListu(IgrajKvizAkt.this, IgrajKvizAkt.this).execute();
     }
 
 
@@ -69,10 +77,25 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
     public void onComplete(String procenatTacnih, String imeIgraca) {
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
 
-        FBWrite fb = new FBWrite(IgrajKvizAkt.this);
-        String dokument = fb.dodajRangListu(imeIgraca, procenatTacnih, "0", kviz.getNaziv());
-        new FBWrite(IgrajKvizAkt.this).execute("Rangliste", kviz.getNaziv() + " " + currentDateTimeString, dokument);
+        int pozicija;
+        if (rangliste.size() == 0)
+            pozicija = 1;
+        else {
+            rangliste = sortirajRangListu(rangliste);
+            pozicija = rangliste.size() + 1;
+            for (int i = 0; i < rangliste.size(); i++) {
+                if (Double.valueOf(procenatTacnih.replaceAll("[^0-9]", "")) >=
+                        Double.valueOf(rangliste.get(i).getProcenatTacnih().replaceAll("[^0-9]", ""))) {
+                    pozicija--;
+                } else {
+                    break;
+                }
+            }
+        }
 
+        FBWrite fb = new FBWrite(IgrajKvizAkt.this);
+        String dokument = fb.dodajRangListu(imeIgraca, procenatTacnih, Integer.toString(pozicija), kviz.getNaziv());
+        new FBWrite(IgrajKvizAkt.this).execute("Rangliste", kviz.getNaziv() + " " + currentDateTimeString, dokument);
     }
 
 
@@ -84,5 +107,29 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         transaction2.replace(R.id.pitanjePlace, rangListaFragment);
         transaction2.addToBackStack(null);
         transaction2.commit();
+    }
+
+    @Override
+    public void onDohvatiRanglisteDone(ArrayList<Ranglista> sveRangListe) {
+        for (int i = 0; i < sveRangListe.size(); i++) {
+            if (sveRangListe.get(i).getNazivKviza().equals(kviz.getNaziv())) {
+                rangliste.add(sveRangListe.get(i));
+            }
+        }
+    }
+
+    private ArrayList<Ranglista> sortirajRangListu(ArrayList<Ranglista> r) {
+        ArrayList<Ranglista> ranglistas = r;
+
+        Collections.sort(ranglistas, new Comparator<Ranglista>() {
+            @Override
+            public int compare(Ranglista s1, Ranglista s2) {
+                String a = s1.getProcenatTacnih().replaceAll("[^0-9]", "");
+                String b = s2.getProcenatTacnih().replaceAll("[^0-9]", "");
+                return Double.valueOf(a).compareTo(Double.valueOf(b));
+            }
+        });
+
+        return ranglistas;
     }
 }

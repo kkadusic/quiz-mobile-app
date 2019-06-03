@@ -67,19 +67,10 @@ public class RangLista extends Fragment implements DohvatiRangListu.IDohvatiRang
         adapterPodaci = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1, podaci);
         lvPodaci.setAdapter(adapterPodaci);
 
-
         new DohvatiRangListu(RangLista.this, getContext()).execute();
-
-
         return view;
     }
 
-
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -117,7 +108,7 @@ public class RangLista extends Fragment implements DohvatiRangListu.IDohvatiRang
             }
         });
 
-        for (int i = rangliste.size()-1; i >= 0; i--) {
+        for (int i = rangliste.size() - 1; i >= 0; i--) {
             podaci.add(rangliste.get(i).getPozicija() + ".       " + rangliste.get(i).getNazivIgraca() +
                     "        " + rangliste.get(i).getProcenatTacnih());
         }

@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -55,7 +54,7 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         svaPitanja.addAll(intent.<Pitanje>getParcelableArrayListExtra("dodana"));
         svaPitanja.addAll(intent.<Pitanje>getParcelableArrayListExtra("moguca"));
 
-        adapter = (new ArrayAdapter<String>(this, R.layout.element_odgovora, R.id.odgovor, odgovori) {
+        adapter = (new ArrayAdapter<String>(this, R.layout.element_odgovor, R.id.odgovor, odgovori) {
             @SuppressWarnings("NullableProblems")
             @Override
             public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {

@@ -83,8 +83,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
 
         trenutniKviz = intent.getParcelableExtra("kviz");
 
-        if (trenutniKviz == null)
-            trenutniKviz = new Kviz(null, null);
+        if (trenutniKviz == null) trenutniKviz = new Kviz(null, null);
 
         sAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, kategorije);
         sAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -149,7 +148,6 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
                         TextView errorText = (TextView) spKategorije.getSelectedView();
                         errorText.setError("");
                         errorText.setTextColor(Color.RED);
-                        // errorText.setText(getString(R.string.categoryError)); todo srediti
                     }
                 }
             }
