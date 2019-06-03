@@ -98,103 +98,107 @@ public class PitanjeFrag extends Fragment {
         Intent intent = getActivity().getIntent();
         final Kviz k = intent.getParcelableExtra("kvizIgraj");
 
-        tekstPitanja.setText(k.getPitanja().get(0).getNaziv());
+        if (k.getPitanja().size() != 0) {
 
-        adapterOdgovori = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1, odgovori);
-        odgovoriPitanja.setAdapter(adapterOdgovori);
+            tekstPitanja.setText(k.getPitanja().get(0).getNaziv());
 
-
-        for (int i = 0; i < k.getPitanja().get(BROJAC_PITANJA).getOdgovori().size(); i++){
-            odgovori.add(k.getPitanja().get(BROJAC_PITANJA).getOdgovori().get(i));
-        }
-
-        odgovoriPitanja.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-                final Handler handler = new Handler();
-
-                if (odgovori.get(position).equals(k.getPitanja().get(BROJAC_PITANJA).getTacan())) {
-                    view.setBackgroundColor(GREEN);
-                    BROJAC_TACNIH++;
-                }
-                else {
-                    view.setBackgroundColor(RED);
-                    // Dodati da stavi zeleno na tacan
-                }
-
-                double procenat = ((double) BROJAC_TACNIH / (BROJAC_PITANJA + 1)) * 100;
-                final String procenatDvijeDecimale = String.format("%.2f", procenat);
-
-                ArrayList<String> informacije = new ArrayList<>();
-                informacije.add(Integer.toString(BROJAC_TACNIH));
-                informacije.add(Integer.toString(k.getPitanja().size() - 1 - BROJAC_PITANJA));
-                informacije.add(procenatDvijeDecimale + "%");
-
-                FragmentTransaction transection=getFragmentManager().beginTransaction();
-                InformacijeFrag mfragment = new InformacijeFrag();
-
-                Bundle bundle = new Bundle();
-                bundle.putStringArrayList("email", informacije);
-                mfragment.setArguments(bundle); //data being send to SecondFragment
-                transection.replace(R.id.informacijePlace, mfragment);
-                transection.commit();
-
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        BROJAC_PITANJA++;
-
-                        if (BROJAC_PITANJA != k.getPitanja().size()) {
-                            view.setBackgroundColor(0);
-                            odgovori.clear();
+            adapterOdgovori = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1, odgovori);
+            odgovoriPitanja.setAdapter(adapterOdgovori);
 
 
-                            tekstPitanja.setText(k.getPitanja().get(BROJAC_PITANJA).getNaziv());
-                            for (int i = 0; i < k.getPitanja().get(BROJAC_PITANJA).getOdgovori().size(); i++){
-                                odgovori.add(k.getPitanja().get(BROJAC_PITANJA).getOdgovori().get(i));
+            for (int i = 0; i < k.getPitanja().get(BROJAC_PITANJA).getOdgovori().size(); i++) {
+                odgovori.add(k.getPitanja().get(BROJAC_PITANJA).getOdgovori().get(i));
+            }
+
+            odgovoriPitanja.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
+                    final Handler handler = new Handler();
+
+                    if (odgovori.get(position).equals(k.getPitanja().get(BROJAC_PITANJA).getTacan())) {
+                        view.setBackgroundColor(GREEN);
+                        BROJAC_TACNIH++;
+                    } else {
+                        view.setBackgroundColor(RED);
+                        // Dodati da stavi zeleno na tacan
+                    }
+
+                    double procenat = ((double) BROJAC_TACNIH / (BROJAC_PITANJA + 1)) * 100;
+                    final String procenatDvijeDecimale = String.format("%.2f", procenat);
+
+                    ArrayList<String> informacije = new ArrayList<>();
+                    informacije.add(Integer.toString(BROJAC_TACNIH));
+                    informacije.add(Integer.toString(k.getPitanja().size() - 1 - BROJAC_PITANJA));
+                    informacije.add(procenatDvijeDecimale + "%");
+
+                    FragmentTransaction transection = getFragmentManager().beginTransaction();
+                    InformacijeFrag mfragment = new InformacijeFrag();
+
+                    Bundle bundle = new Bundle();
+                    bundle.putStringArrayList("email", informacije);
+                    mfragment.setArguments(bundle); //data being send to SecondFragment
+                    transection.replace(R.id.informacijePlace, mfragment);
+                    transection.commit();
+
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            BROJAC_PITANJA++;
+
+                            if (BROJAC_PITANJA != k.getPitanja().size()) {
+                                view.setBackgroundColor(0);
+                                odgovori.clear();
+
+
+                                tekstPitanja.setText(k.getPitanja().get(BROJAC_PITANJA).getNaziv());
+                                for (int i = 0; i < k.getPitanja().get(BROJAC_PITANJA).getOdgovori().size(); i++) {
+                                    odgovori.add(k.getPitanja().get(BROJAC_PITANJA).getOdgovori().get(i));
+
+                                }
+                                adapterOdgovori.notifyDataSetChanged();
+                            } else {
+                                tekstPitanja.setText("Kviz je završen!");
+                                odgovori.clear();
+                                adapterOdgovori.notifyDataSetChanged();
+
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                builder.setTitle("Unesite ime: ");
+
+                                final EditText input = new EditText(getActivity());
+                                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                                builder.setView(input);
+
+                                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        imeIgraca = input.getText().toString();
+                                        mListener.onComplete(procenatDvijeDecimale + "%", imeIgraca);
+                                        mZamjena.onCompleteZamjena();
+                                    }
+                                });
+
+                                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                        mZamjena.onCompleteZamjena(); // samo prikazi rang listu
+                                    }
+                                });
+
+                                builder.show();
 
                             }
-                            adapterOdgovori.notifyDataSetChanged();
                         }
-                        else {
-                            tekstPitanja.setText("Kviz je završen!");
-                            odgovori.clear();
-                            adapterOdgovori.notifyDataSetChanged();
+                    }, 2000);
 
+                }
+            });
+        }
 
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("Unesite ime: ");
-
-                            final EditText input = new EditText(getActivity());
-                            input.setInputType(InputType.TYPE_CLASS_TEXT);
-                            builder.setView(input);
-
-                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    imeIgraca = input.getText().toString();
-                                    mListener.onComplete(procenatDvijeDecimale + "%", imeIgraca);
-                                    mZamjena.onCompleteZamjena();
-                                }
-                            });
-
-                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                    mZamjena.onCompleteZamjena(); // samo prikazi rang listu
-                                }
-                            });
-
-                            builder.show();
-
-                        }
-                    }
-                }, 2000);
-
-            }
-        });
-
+        else {
+            dajAlert("Kviz kojeg igrate nema pitanja!");
+        }
 
         return view;
     }
@@ -233,6 +237,19 @@ public class PitanjeFrag extends Fragment {
 
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
+    }
+
+    public void dajAlert(String poruka) {
+        AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+        alertDialog.setTitle("Greska");
+        alertDialog.setMessage(poruka);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
 
 
