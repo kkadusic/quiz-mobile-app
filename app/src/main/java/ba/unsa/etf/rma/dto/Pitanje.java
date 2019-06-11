@@ -121,4 +121,13 @@ public class Pitanje implements Parcelable {
         return Objects.equals(naziv, pitanje.naziv);
     }
 
+    public int dajIndeksTacnog() {
+        for (int i = 0; i < odgovori.size(); i++) {
+            if (odgovori.get(i).equals(tacan)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
 }

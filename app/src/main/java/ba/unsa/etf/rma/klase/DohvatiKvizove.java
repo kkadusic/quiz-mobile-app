@@ -33,22 +33,18 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
     private ArrayList<Pitanje> pitanja = new ArrayList<>();
     private ArrayList<Kategorija> kategorije = new ArrayList<>();
 
-    @SuppressLint("StaticFieldLeak")
     private Resources resources;
-
 
     @Override
     protected Void doInBackground(String... strings) {
         GoogleCredential credentials;
 
         try {
-
             InputStream tajnaStream = resources.openRawResource(R.raw.secret);
             credentials = GoogleCredential.fromStream(tajnaStream).createScoped(Lists.newArrayList("https://www.googleapis.com/auth/datastore"));
 
             credentials.refreshToken();
             String TOKEN = credentials.getAccessToken();
-
 
             String url1 = "https://firestore.googleapis.com/v1/projects/rma19kadusickerim68/databases/(default)/documents:runQuery?access_token=";
             String query = queryKategorije();
@@ -61,30 +57,28 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
             conn.setRequestProperty("Accept", "application/json");
 
 
-            try (OutputStream os = conn.getOutputStream()){
+            try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = query.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
+
             int code = conn.getResponseCode(); // response kod
             InputStream in = conn.getInputStream();
             String rezultat = convertStreamToString(in);
             rezultat = "{ \"documents\": " + rezultat + "}";
 
             parsirajKategorije(rezultat);
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
 
         try {
-
             InputStream tajnaStream = resources.openRawResource(R.raw.secret);
             credentials = GoogleCredential.fromStream(tajnaStream).createScoped(Lists.newArrayList("https://www.googleapis.com/auth/datastore"));
 
             credentials.refreshToken();
             String TOKEN = credentials.getAccessToken();
-
 
             String url1 = "https://firestore.googleapis.com/v1/projects/rma19kadusickerim68/databases/(default)/documents:runQuery?access_token=";
             String query = queryPitanja();
@@ -96,19 +90,18 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept", "application/json");
 
-
-            try (OutputStream os = conn.getOutputStream()){
+            try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = query.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
+
             int code = conn.getResponseCode(); // response kod
             InputStream in = conn.getInputStream();
             String rezultat = convertStreamToString(in);
             rezultat = "{ \"documents\": " + rezultat + "}";
 
             parsirajPitanja(rezultat);
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -120,7 +113,6 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
             credentials.refreshToken();
             String TOKEN = credentials.getAccessToken();
 
-
             String url1 = "https://firestore.googleapis.com/v1/projects/rma19kadusickerim68/databases/(default)/documents:runQuery?access_token=";
             String query = queryKvizovi();
 
@@ -131,21 +123,20 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept", "application/json");
 
-
-            try (OutputStream os = conn.getOutputStream()){
+            try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = query.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
+
             int code = conn.getResponseCode(); // response kod
             InputStream in = conn.getInputStream();
             String rezultat = convertStreamToString(in);
             rezultat = "{ \"documents\": " + rezultat + "}";
 
             parsirajKvizove(rezultat);
-
             Log.d("TOKEN", TOKEN);
-
-        } catch(IOException e){
+            Log.d("TOKEN-TAG", "Pozvan Token iz DohvatiKvizove");
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -159,7 +150,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
 
     private IDohvatiKvizoveDone poziv;
 
-    public DohvatiKvizove(IDohvatiKvizoveDone p, Resources resources){
+    public DohvatiKvizove(IDohvatiKvizoveDone p, Resources resources) {
         poziv = p;
         this.resources = resources;
     }
@@ -177,7 +168,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
 
-        String line = null;
+        String line;
         try {
             while ((line = reader.readLine()) != null) {
                 sb.append(line).append("\n");
@@ -194,7 +185,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
     }
 
 
-    public void parsirajKvizove(String rezultat){
+    public void parsirajKvizove(String rezultat) {
         try {
             JSONObject obj = new JSONObject(rezultat);
             JSONArray documents = obj.getJSONArray("documents");
@@ -208,8 +199,6 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
 
                 JSONObject naziv = new JSONObject(fields.getString("naziv"));
 
-
-
                 JSONObject idKategorije = new JSONObject(fields.getString("idKategorije"));
 
                 JSONObject odgovori = new JSONObject(fields.getString("pitanja"));
@@ -219,15 +208,15 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
                 Kviz kviz = new Kviz();
                 kviz.setNaziv(naziv.getString("stringValue"));
 
-                for (Kategorija k : kategorije){
+                for (Kategorija k : kategorije) {
                     if (k.getNaziv().equals(idKategorije.getString("stringValue"))) {
                         kviz.setKategorija(k);
                         break;
                     }
                 }
 
-                for (Pitanje p : pitanja){
-                    for (int j=0; j<values.length(); j++){
+                for (Pitanje p : pitanja) {
+                    for (int j = 0; j < values.length(); j++) {
                         JSONObject pitanje = values.getJSONObject(j);
                         if (p.getNaziv().equals(pitanje.getString("stringValue")))
                             kviz.getPitanja().add(p);
@@ -237,13 +226,13 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
                 kvizovi.add(kviz);
             }
 
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
 
-    public void parsirajPitanja(String rezultat){
+    public void parsirajPitanja(String rezultat) {
         try {
             JSONObject obj = new JSONObject(rezultat);
             JSONArray documents = obj.getJSONArray("documents");
@@ -266,7 +255,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
 
                 Pitanje pitanje = new Pitanje();
 
-                for (int j = 0; j < values.length(); j++){
+                for (int j = 0; j < values.length(); j++) {
                     JSONObject odgovor = values.getJSONObject(j);
                     if (indeks == j)
                         pitanje.setTacan(odgovor.getString("stringValue"));
@@ -284,8 +273,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
     }
 
 
-
-    public void parsirajKategorije(String rezultat){
+    public void parsirajKategorije(String rezultat) {
         try {
             JSONObject obj = new JSONObject(rezultat);
             JSONArray documents = obj.getJSONArray("documents");
@@ -314,7 +302,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
     }
 
 
-    private String queryKvizovi(){
+    private String queryKvizovi() {
         return "{" +
                 "    \"structuredQuery\": {" +
                 "        \"select\": { \"fields\": [ {\"fieldPath\": \"idKategorije\"}, {\"fieldPath\": \"naziv\"}, {\"fieldPath\": \"pitanja\"}] }," +
@@ -324,7 +312,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
                 "}";
     }
 
-    private String queryPitanja(){
+    private String queryPitanja() {
         return "{" +
                 "    \"structuredQuery\": {" +
                 "        \"select\": { \"fields\": [ {\"fieldPath\": \"indexTacnog\"}, {\"fieldPath\": \"odgovori\"}, {\"fieldPath\": \"naziv\"}] }," +
@@ -334,7 +322,7 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
                 "}";
     }
 
-    private String queryKategorije(){
+    private String queryKategorije() {
         return "{" +
                 "    \"structuredQuery\": {" +
                 "        \"select\": { \"fields\": [ {\"fieldPath\": \"idIkonice\"}, {\"fieldPath\": \"naziv\"}] }," +

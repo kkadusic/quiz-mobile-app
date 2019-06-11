@@ -1,8 +1,11 @@
 package ba.unsa.etf.rma.aktivnosti;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -52,31 +55,36 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         btnDodajKategoriju.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validanUnos()) {
-                    if (!postojiKategorija()) {
-                        Kategorija novaKategorija = new Kategorija(etNaziv.getText().toString(), etIkona.getText().toString());
-                        Intent i = new Intent();
-                        i.putExtra("novaKategorija", novaKategorija);
-                        setResult(RESULT_OK, i);
-                        finish();
+                if (isNetworkAvailable()) {
+                    if (validanUnos()) {
+                        if (!postojiKategorija()) {
+                            Kategorija novaKategorija = new Kategorija(etNaziv.getText().toString(), etIkona.getText().toString());
+                            Intent i = new Intent();
+                            i.putExtra("novaKategorija", novaKategorija);
+                            setResult(RESULT_OK, i);
+                            finish();
 
-                        FBWrite fb = new FBWrite(getResources());
-                        String poljeNaziv = fb.napraviPolje("naziv", novaKategorija.getNaziv());
-                        String poljeId = fb.napraviPolje("idIkonice", Integer.parseInt(novaKategorija.getId()));
-                        String dokument = fb.napraviDokument(poljeNaziv, poljeId);
-                        new FBWrite(getResources()).execute("Kategorije", novaKategorija.getNaziv(), dokument);
+                            FBWrite fb = new FBWrite(getResources());
+                            String poljeNaziv = fb.napraviPolje("naziv", novaKategorija.getNaziv());
+                            String poljeId = fb.napraviPolje("idIkonice", Integer.parseInt(novaKategorija.getId()));
+                            String dokument = fb.napraviDokument(poljeNaziv, poljeId);
+                            new FBWrite(getResources()).execute("Kategorije", novaKategorija.getNaziv(), dokument);
+
+                        } else {
+                            Toast.makeText(DodajKategorijuAkt.this, "Unesena kategorija već postoji!", Toast.LENGTH_SHORT).show();
+                            dajAlert("Unesena kategorija već postoji!");
+                        }
 
                     } else {
-                        Toast.makeText(DodajKategorijuAkt.this, "Unesena kategorija već postoji!", Toast.LENGTH_SHORT).show();
-                        dajAlert("Unesena kategorija već postoji!");
+                        if (etNaziv.getText().toString().length() == 0)
+                            etNaziv.setError("Unesite naziv kategorije!");
+
+                        if (etIkona.getText().toString().length() == 0)
+                            etIkona.setError("Izaberite ikonu!");
                     }
-
-                } else {
-                    if (etNaziv.getText().toString().length() == 0)
-                        etNaziv.setError("Unesite naziv kategorije!");
-
-                    if (etIkona.getText().toString().length() == 0)
-                        etIkona.setError("Izaberite ikonu!");
+                }
+                else {
+                    dajAlert("Uređaj nije konektovan na Internet!");
                 }
             }
         });
@@ -100,6 +108,12 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         etIkona.setText(String.valueOf(selectedIcons[0].getId()));
     }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
     public void dajAlert(String poruka) {
         AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setTitle("Greska");
@@ -112,4 +126,5 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
                 });
         alertDialog.show();
     }
+
 }

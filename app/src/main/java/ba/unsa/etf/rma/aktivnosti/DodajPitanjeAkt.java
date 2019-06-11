@@ -1,8 +1,13 @@
 package ba.unsa.etf.rma.aktivnosti;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -128,31 +133,36 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         btnDodajPitanje.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validnoPitanje()) {
-                    if (!postojiPitanje()) {
-                        novoPitanje.setNaziv(etNaziv.getText().toString());
-                        novoPitanje.setTekstPitanja(etNaziv.getText().toString());
-                        novoPitanje.setOdgovori(odgovori);
+                if (isNetworkAvailable()) {
+                    if (validnoPitanje()) {
+                        if (!postojiPitanje()) {
+                            novoPitanje.setNaziv(etNaziv.getText().toString());
+                            novoPitanje.setTekstPitanja(etNaziv.getText().toString());
+                            novoPitanje.setOdgovori(odgovori);
 
-                        Intent i = new Intent();
-                        i.putExtra("novoPitanje", novoPitanje);
-                        setResult(RESULT_OK, i);
-                        finish();
+                            Intent i = new Intent();
+                            i.putExtra("novoPitanje", novoPitanje);
+                            setResult(RESULT_OK, i);
+                            finish();
 
-                        FBWrite fb = new FBWrite(getResources());
-                        String poljeNaziv = fb.napraviPolje("naziv", novoPitanje.getNaziv());
-                        String poljeOdgovori = fb.napraviPolje("odgovori", novoPitanje.getOdgovori());
-                        String poljeIndex = fb.napraviPolje("indexTacnog", dajIndeksTacnog(novoPitanje));
-                        String dokument = fb.napraviDokument(poljeNaziv, poljeIndex, poljeOdgovori);
-                        new FBWrite(getResources()).execute("Pitanja", novoPitanje.getNaziv(), dokument);
+                            FBWrite fb = new FBWrite(getResources());
+                            String poljeNaziv = fb.napraviPolje("naziv", novoPitanje.getNaziv());
+                            String poljeOdgovori = fb.napraviPolje("odgovori", novoPitanje.getOdgovori());
+                            String poljeIndex = fb.napraviPolje("indexTacnog", dajIndeksTacnog(novoPitanje));
+                            String dokument = fb.napraviDokument(poljeNaziv, poljeIndex, poljeOdgovori);
+                            new FBWrite(getResources()).execute("Pitanja", novoPitanje.getNaziv(), dokument);
 
-                    } else
-                        Toast.makeText(DodajPitanjeAkt.this, "Pitanje sa istim imenom vec postoji!", Toast.LENGTH_SHORT).show();
-                } else {
-                    if (novoPitanje.getTacan() == null)
-                        etOdgovor.setError("Unesite tacan odgovor!");
-                    if (etNaziv.getText().length() == 0)
-                        etNaziv.setError("Unesite ime pitanja!");
+                        } else
+                            Toast.makeText(DodajPitanjeAkt.this, "Pitanje sa istim imenom vec postoji!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (novoPitanje.getTacan() == null)
+                            etOdgovor.setError("Unesite tacan odgovor!");
+                        if (etNaziv.getText().length() == 0)
+                            etNaziv.setError("Unesite ime pitanja!");
+                    }
+                }
+                else {
+                    dajAlert("Uređaj nije konektovan na Internet!");
                 }
             }
         });
@@ -181,5 +191,24 @@ public class DodajPitanjeAkt extends AppCompatActivity {
                 indeksTacnog = i;
         }
         return indeksTacnog;
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    public void dajAlert(String poruka) {
+        AlertDialog alertDialog = new AlertDialog.Builder(DodajPitanjeAkt.this).create();
+        alertDialog.setTitle("Greska");
+        alertDialog.setMessage(poruka);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
 }

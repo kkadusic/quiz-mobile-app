@@ -1,9 +1,12 @@
 package ba.unsa.etf.rma.aktivnosti;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -65,7 +68,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
         setContentView(R.layout.dodaj_kviz_akt);
 
 
-        new DohvatiPitanja(DodajKvizAkt.this, getResources()).execute("blabla");
+        new DohvatiPitanja(DodajKvizAkt.this, getResources()).execute();
 
 
         final Intent intent = getIntent();
@@ -108,46 +111,50 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
         btnDodajKviz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validanUnos()) {
-                    if (!postojiKviz()) {
-                        trenutniKviz.setNaziv(etNaziv.getText().toString());
-                        trenutniKviz.setKategorija((Kategorija) spKategorije.getSelectedItem());
-                        trenutniKviz.setPitanja(dodana);
+                if (isNetworkAvailable()) {
+                    if (validanUnos()) {
+                        if (!postojiKviz()) {
+                            trenutniKviz.setNaziv(etNaziv.getText().toString());
+                            trenutniKviz.setKategorija((Kategorija) spKategorije.getSelectedItem());
+                            trenutniKviz.setPitanja(dodana);
 
-                        Intent i = new Intent();
-                        i.putExtra("kviz", trenutniKviz);
-                        if (intent.getIntExtra("requestCode", 0) == AZURIRAJ_KVIZ)
-                            i.putExtra("staroImeKviza", staroImeKviza);
+                            Intent i = new Intent();
+                            i.putExtra("kviz", trenutniKviz);
+                            if (intent.getIntExtra("requestCode", 0) == AZURIRAJ_KVIZ)
+                                i.putExtra("staroImeKviza", staroImeKviza);
 
-                        i.putParcelableArrayListExtra("kategorije", kategorije);
-                        setResult(RESULT_OK, i);
-                        finish();
+                            i.putParcelableArrayListExtra("kategorije", kategorije);
+                            setResult(RESULT_OK, i);
+                            finish();
 
-                        ArrayList<String> naziviPitanja = new ArrayList<>(); // id-evi Pitanja
-                        for (Pitanje p : trenutniKviz.getPitanja()) {
-                            naziviPitanja.add(p.getNaziv());
+                            ArrayList<String> naziviPitanja = new ArrayList<>(); // id-evi Pitanja
+                            for (Pitanje p : trenutniKviz.getPitanja()) {
+                                naziviPitanja.add(p.getNaziv());
+                            }
+                            if (naziviPitanja.size() == 0) naziviPitanja.add("");
+
+
+                            FBWrite fb = new FBWrite(getResources());
+                            String nazivKviza = fb.napraviPolje("naziv", trenutniKviz.getNaziv());
+                            String pitanjaKviza = fb.napraviPolje("pitanja", naziviPitanja);
+                            String idKategorije = fb.napraviPolje("idKategorije", trenutniKviz.getKategorija().getNaziv());
+                            String dokument = fb.napraviDokument(nazivKviza, pitanjaKviza, idKategorije);
+                            new FBWrite(getResources()).execute("Kvizovi", trenutniKviz.getNaziv(), dokument);
+
+                        } else
+                            Toast.makeText(DodajKvizAkt.this, "Kviz sa navedenim imenom već postoji!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (etNaziv.getText().length() == 0)
+                            etNaziv.setError("Unesite naziv kviza!");
+
+                        if (spKategorije.getSelectedItemPosition() == kategorije.size() - 1) {
+                            TextView errorText = (TextView) spKategorije.getSelectedView();
+                            errorText.setError("");
+                            errorText.setTextColor(Color.RED);
                         }
-                        if (naziviPitanja.size() == 0) naziviPitanja.add("");
-
-
-                        FBWrite fb = new FBWrite(getResources());
-                        String nazivKviza = fb.napraviPolje("naziv", trenutniKviz.getNaziv());
-                        String pitanjaKviza = fb.napraviPolje("pitanja", naziviPitanja);
-                        String idKategorije = fb.napraviPolje("idKategorije", trenutniKviz.getKategorija().getNaziv());
-                        String dokument = fb.napraviDokument(nazivKviza, pitanjaKviza, idKategorije);
-                        new FBWrite(getResources()).execute("Kvizovi", trenutniKviz.getNaziv(), dokument);
-
-                    } else
-                        Toast.makeText(DodajKvizAkt.this, "Kviz sa navedenim imenom već postoji!", Toast.LENGTH_SHORT).show();
-                } else {
-                    if (etNaziv.getText().length() == 0)
-                        etNaziv.setError("Unesite naziv kviza!");
-
-                    if (spKategorije.getSelectedItemPosition() == kategorije.size() - 1) {
-                        TextView errorText = (TextView) spKategorije.getSelectedView();
-                        errorText.setError("");
-                        errorText.setTextColor(Color.RED);
                     }
+                } else {
+                    dajAlert("Uređaj nije konektovan na Internet!");
                 }
             }
         });
@@ -236,6 +243,12 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
     private boolean validanUnos() {
         return (etNaziv.getText() != null && etNaziv.getText().length() != 0
                 && spKategorije.getSelectedItemPosition() != kategorije.size() - 1);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     @Override

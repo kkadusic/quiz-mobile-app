@@ -86,4 +86,12 @@ public class Kviz implements Parcelable {
     public void dodajPitanje(Pitanje p) {
         pitanja.add(p);
     }
+
+    public ArrayList<String> getNaziviPitanja(){
+        ArrayList<String> naziviPitanja = new ArrayList<>();
+        for (Pitanje p : pitanja){
+            naziviPitanja.add(p.getNaziv());
+        }
+        return naziviPitanja;
+    }
 }

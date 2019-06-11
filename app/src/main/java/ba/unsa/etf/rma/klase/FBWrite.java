@@ -177,7 +177,7 @@ public class FBWrite extends AsyncTask<String, Void, Void> {
 
 
     public String dodajRangListu(String nazivIgraca, String procenatTacnih, String pozicija, String nazivKviza){
-        String dokument = "{ \"fields\": {\n" +
+        return "{ \"fields\": {\n" +
                 "        \"lista\": {\n" +
                 "          \"mapValue\": {\n" +
                 "            \"fields\": {\n" +
@@ -203,7 +203,6 @@ public class FBWrite extends AsyncTask<String, Void, Void> {
                 "          \"stringValue\": \"" + nazivKviza + "\"\n" +
                 "        }\n" +
                 "      }}";
-        return dokument;
     }
 
 }
