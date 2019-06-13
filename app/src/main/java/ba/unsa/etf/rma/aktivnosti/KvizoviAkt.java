@@ -10,6 +10,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.provider.AlarmClock;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +22,8 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.MyAdapter;
@@ -76,14 +79,8 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         ucitajSaFirebase();
 
 
-
-
-
         Intent i = new Intent(KvizoviAkt.this, NetworkChangeReceiver.class);
         KvizoviAkt.this.sendBroadcast(i);
-
-
-
 
 
         lvKvizovi = findViewById(R.id.lvKvizovi);
@@ -128,6 +125,9 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
                 Intent intent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
                 intent.putExtra("kviz", (Kviz) parent.getItemAtPosition(position));
                 startActivity(intent);
+
+                postaviAlarm((Kviz) parent.getItemAtPosition(position));
+
                 //intent.putExtra("requestCode", IGRAJ_KVIZ);
                 //startActivityForResult(intent, IGRAJ_KVIZ);
             }
@@ -258,7 +258,7 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         adapter.notifyDataSetChanged();
     }
 
-    public void ucitajSaFirebase(){
+    public void ucitajSaFirebase() {
         bazaOpenHelper.obrisiSveIzTabela(db);
         new DohvatiKvizove(KvizoviAkt.this, getResources()).execute();
         new DohvatiPitanja(KvizoviAkt.this, getResources()).execute();
@@ -269,7 +269,7 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
     public void onDohvatiDone(ArrayList<Pitanje> listaPitanja) { // todo preimenovati metodu
         // Ucitavanje pitanja u lokalnu bazu
         bazaOpenHelper.obrisiSvaPitanja(db);
-        for (Pitanje p : listaPitanja){
+        for (Pitanje p : listaPitanja) {
             bazaOpenHelper.dodajPitanje(p, db);
         }
         Log.d("PITANJA", "Upisana pitanja u SQLite");
@@ -278,9 +278,36 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
     @Override
     public void onDohvatiRanglisteDone(ArrayList<Ranglista> rangliste) {
         bazaOpenHelper.obrisiSveRangliste(db);
-        for (Ranglista rl : rangliste){
+        for (Ranglista rl : rangliste) {
             bazaOpenHelper.dodajRanglistu(rl, db);
         }
         Log.d("RANGLISTE", "Upisane rangliste u SQLite");
+    }
+
+
+    public void postaviAlarm(Kviz kviz) {
+        Calendar rightNow = Calendar.getInstance();
+        int satiTrenutno = rightNow.get(Calendar.HOUR_OF_DAY);
+        Log.d("VRIJEME", "Trenutno sati: " + satiTrenutno);
+        int minuteTrenutno = rightNow.get(Calendar.MINUTE);
+        Log.d("VRIJEME", "Trenutno minuta: " + minuteTrenutno);
+
+        if (kviz.getPitanja().size() > 0) {
+            int potrebnoMinuta = (int) Math.ceil((double) kviz.getPitanja().size() / 2) + 1 + minuteTrenutno;
+
+            if (potrebnoMinuta > 59) {
+                satiTrenutno++;
+                potrebnoMinuta -= 60;
+            }
+
+            Log.d("VRIJEME", "Postavi u " + satiTrenutno + " " + potrebnoMinuta);
+
+            Intent i = new Intent(AlarmClock.ACTION_SET_ALARM);
+            i.putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+            i.putExtra(AlarmClock.EXTRA_HOUR, satiTrenutno);
+            i.putExtra(AlarmClock.EXTRA_MINUTES, potrebnoMinuta);
+            i.putExtra(AlarmClock.EXTRA_MESSAGE, "Alarm za kviz");
+            startActivity(i);
+        }
     }
 }
