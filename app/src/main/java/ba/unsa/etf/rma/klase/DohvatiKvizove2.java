@@ -33,7 +33,6 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
     private ArrayList<Pitanje> pitanja = new ArrayList<>();
     private Kategorija kategorija;
 
-    @SuppressLint("StaticFieldLeak")
     private Resources resources;
 
 

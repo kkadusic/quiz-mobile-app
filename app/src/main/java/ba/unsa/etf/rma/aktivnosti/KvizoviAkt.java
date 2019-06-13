@@ -1,9 +1,11 @@
 package ba.unsa.etf.rma.aktivnosti;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
@@ -28,9 +30,14 @@ import ba.unsa.etf.rma.klase.DohvatiKvizove;
 import ba.unsa.etf.rma.klase.DohvatiKvizove2;
 import ba.unsa.etf.rma.dto.Kategorija;
 import ba.unsa.etf.rma.dto.Kviz;
+import ba.unsa.etf.rma.klase.DohvatiPitanja;
+import ba.unsa.etf.rma.klase.DohvatiRangListu;
+import ba.unsa.etf.rma.klase.NetworkChangeReceiver;
 import ba.unsa.etf.rma.sqlite.BazaOpenHelper;
 
-public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDohvatiKvizoveDone, DohvatiKvizove2.IDohvatiFilterKvizoveDone {
+public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDohvatiKvizoveDone,
+        DohvatiKvizove2.IDohvatiFilterKvizoveDone, DohvatiPitanja.IDohvatiPitanjaDone,
+        DohvatiRangListu.IDohvatiRangListeDone {
 
     static final int DODAJ_KVIZ = 100;
     static final int AZURIRAJ_KVIZ = 101;
@@ -64,8 +71,19 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
             db = bazaOpenHelper.getReadableDatabase();
         }
 
-        bazaOpenHelper.obrisiSveIzTabela();
-        new DohvatiKvizove(KvizoviAkt.this, getResources()).execute();
+        // bazaOpenHelper.obrisiSveIzTabela(db);
+        // new DohvatiKvizove(KvizoviAkt.this, getResources()).execute();
+        ucitajSaFirebase();
+
+
+
+
+
+        Intent i = new Intent(KvizoviAkt.this, NetworkChangeReceiver.class);
+        KvizoviAkt.this.sendBroadcast(i);
+
+
+
 
 
         lvKvizovi = findViewById(R.id.lvKvizovi);
@@ -127,8 +145,9 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
                         // prikazaniKvizovi.addAll(sviKvizovi);
                         // adapter.notifyDataSetChanged();
 
-                        bazaOpenHelper.obrisiSveIzTabela();
-                        new DohvatiKvizove(KvizoviAkt.this, getResources()).execute();
+                        // bazaOpenHelper.obrisiSveIzTabela(db);
+                        // new DohvatiKvizove(KvizoviAkt.this, getResources()).execute();
+                        ucitajSaFirebase();
                     } else {
                         prikazaniKvizovi.clear();
                         adapter.notifyDataSetChanged();
@@ -220,16 +239,16 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         sAdapter.notifyDataSetChanged();
 
 
-        // Ucitavanje u lokalnu bazu
+        // Ucitavanje kvizova i kategorija u lokalnu bazu
         for (Kategorija k : listaKategorija) {
-            bazaOpenHelper.dodajKategoriju(k);
-            Log.d("TAG-kat", "Dodana kategorija" + k.toString());
+            bazaOpenHelper.dodajKategoriju(k, db);
         }
+        Log.d("KATEGORIJE", "Upisane sve kategorije u SQLite");
 
         for (Kviz k : listaKvizova) {
-            bazaOpenHelper.dodajKviz(k);
-            Log.d("TAG-kvi", "Dodan kviz" + k.toString());
+            bazaOpenHelper.dodajKviz(k, db);
         }
+        Log.d("KVIZOVI", "Upisani kvizovi u SQLite");
     }
 
     @Override
@@ -237,5 +256,31 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         prikazaniKvizovi.clear();
         prikazaniKvizovi.addAll(filtriraniKvizovi);
         adapter.notifyDataSetChanged();
+    }
+
+    public void ucitajSaFirebase(){
+        bazaOpenHelper.obrisiSveIzTabela(db);
+        new DohvatiKvizove(KvizoviAkt.this, getResources()).execute();
+        new DohvatiPitanja(KvizoviAkt.this, getResources()).execute();
+        new DohvatiRangListu(KvizoviAkt.this, getResources()).execute();
+    }
+
+    @Override
+    public void onDohvatiDone(ArrayList<Pitanje> listaPitanja) { // todo preimenovati metodu
+        // Ucitavanje pitanja u lokalnu bazu
+        bazaOpenHelper.obrisiSvaPitanja(db);
+        for (Pitanje p : listaPitanja){
+            bazaOpenHelper.dodajPitanje(p, db);
+        }
+        Log.d("PITANJA", "Upisana pitanja u SQLite");
+    }
+
+    @Override
+    public void onDohvatiRanglisteDone(ArrayList<Ranglista> rangliste) {
+        bazaOpenHelper.obrisiSveRangliste(db);
+        for (Ranglista rl : rangliste){
+            bazaOpenHelper.dodajRanglistu(rl, db);
+        }
+        Log.d("RANGLISTE", "Upisane rangliste u SQLite");
     }
 }

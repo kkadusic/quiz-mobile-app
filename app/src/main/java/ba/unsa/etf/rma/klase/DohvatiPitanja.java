@@ -73,7 +73,7 @@ public class DohvatiPitanja extends AsyncTask<String, Void, Void> {
             InputStream in = conn.getInputStream();
             String rezultat = convertStreamToString(in);
             rezultat = "{ \"documents\": " + rezultat + "}";
-            Log.d("TAG-sve", rezultat);
+            // Log.d("TAG-sve", rezultat);
 
             parsirajPitanja(rezultat);
 

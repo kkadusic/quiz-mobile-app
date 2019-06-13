@@ -62,7 +62,7 @@ public class DohvatiRangListu extends AsyncTask<String, Void, Void> {
             InputStream in = conn.getInputStream();
             String rezultat = convertStreamToString(in);
             rezultat = "{ \"documents\": " + rezultat + "}";
-            Log.d("TAG-RANGLISTE", rezultat);
+            // Log.d("TAG-RANGLISTE", rezultat);
 
             parsirajRangliste(rezultat);
 

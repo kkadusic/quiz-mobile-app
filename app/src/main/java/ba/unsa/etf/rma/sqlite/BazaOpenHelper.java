@@ -122,9 +122,7 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
     }
 
 
-    public long dodajKategoriju(Kategorija kategorija) {
-        SQLiteDatabase db = KvizoviAkt.db;
-
+    public long dodajKategoriju(Kategorija kategorija, SQLiteDatabase db) {
         ContentValues noveVrijednosti = new ContentValues();
         noveVrijednosti.put(KATEGORIJA_NAZIV, kategorija.getNaziv());
         noveVrijednosti.put(KATEGORIJA_ID_IKONICE, kategorija.getId());
@@ -135,9 +133,8 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
         return newRowId;
     }
 
-    public ArrayList<Kategorija> dohvatiKategorije() {
+    public ArrayList<Kategorija> dohvatiKategorije(SQLiteDatabase db) {
         Cursor todoCursor;
-        SQLiteDatabase db = KvizoviAkt.db;
         ArrayList<Kategorija> kategorije = new ArrayList<>();
 
         todoCursor = db.rawQuery("SELECT * FROM " + DATABASE_TABLE_KATEGORIJA, null);
@@ -158,9 +155,7 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
     }
 
 
-    public long dodajPitanje(Pitanje pitanje) {
-        SQLiteDatabase db = KvizoviAkt.db;
-
+    public long dodajPitanje(Pitanje pitanje, SQLiteDatabase db) {
         String[] odgovoriStringArray = pitanje.getOdgovori().toArray(new String[0]);
 
         ContentValues noveVrijednosti = new ContentValues();
@@ -174,9 +169,8 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
         return newRowId;
     }
 
-    public ArrayList<Pitanje> dohvatiPitanja() {
+    public ArrayList<Pitanje> dohvatiPitanja(SQLiteDatabase db) {
         Cursor todoCursor;
-        SQLiteDatabase db = KvizoviAkt.db;
         ArrayList<Pitanje> pitanja = new ArrayList<>();
 
         todoCursor = db.rawQuery("SELECT * FROM " + DATABASE_TABLE_PITANJE, null);
@@ -200,8 +194,7 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
     }
 
 
-    public long dodajKviz(Kviz kviz) {
-        SQLiteDatabase db = KvizoviAkt.db;
+    public long dodajKviz(Kviz kviz, SQLiteDatabase db) {
         String[] pitanjaStringArray = kviz.getNaziviPitanja().toArray(new String[0]);
 
         ContentValues noveVrijednosti = new ContentValues();
@@ -215,9 +208,8 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
         return newRowId;
     }
 
-    public ArrayList<Kviz> dohvatiKvizove() {
+    public ArrayList<Kviz> dohvatiKvizove(SQLiteDatabase db) {
         Cursor todoCursor;
-        SQLiteDatabase db = KvizoviAkt.db;
         ArrayList<Kviz> kvizovi = new ArrayList<>();
 
         todoCursor = db.rawQuery("SELECT * FROM " + DATABASE_TABLE_KVIZ, null);
@@ -227,8 +219,8 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
         int INDEX_ID_KATEGORIJE = todoCursor.getColumnIndexOrThrow(KVIZ_ID_KATEGORIJE);
         int INDEX_PITANJA = todoCursor.getColumnIndexOrThrow(KVIZ_PITANJA);
 
-        ArrayList<Kategorija> sveKategorije = dohvatiKategorije();
-        ArrayList<Pitanje> svaPitanja = dohvatiPitanja();
+        ArrayList<Kategorija> sveKategorije = dohvatiKategorije(db);
+        ArrayList<Pitanje> svaPitanja = dohvatiPitanja(db);
 
         while (todoCursor.moveToNext()) {
             Kviz kviz = new Kviz();
@@ -256,9 +248,7 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
     }
 
 
-    public long dodajRanglistu(Ranglista ranglista) {
-        SQLiteDatabase db = KvizoviAkt.db;
-
+    public long dodajRanglistu(Ranglista ranglista, SQLiteDatabase db) {
         ContentValues noveVrijednosti = new ContentValues();
         noveVrijednosti.put(RANGLISTA_KVIZ_NAZIV, ranglista.getNazivKviza());
         noveVrijednosti.put(RANGLISTA_POZICIJA, ranglista.getPozicija());
@@ -271,9 +261,8 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
         return newRowId;
     }
 
-    public ArrayList<Ranglista> dohvatiRangliste() {
+    public ArrayList<Ranglista> dohvatiRangliste(SQLiteDatabase db) {
         Cursor todoCursor;
-        SQLiteDatabase db = KvizoviAkt.db;
         ArrayList<Ranglista> rangliste = new ArrayList<>();
 
         todoCursor = db.rawQuery("SELECT * FROM " + DATABASE_TABLE_RANGLISTA, null);
@@ -298,11 +287,18 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
     }
 
 
-    public void obrisiSveIzTabela(){
-        SQLiteDatabase db = KvizoviAkt.db;
+    public void obrisiSveIzTabela(SQLiteDatabase db){
         db.execSQL("DELETE FROM Kategorija");
         db.execSQL("DELETE FROM Pitanje");
         db.execSQL("DELETE FROM Kviz");
+        db.execSQL("DELETE FROM Ranglista");
+    }
+
+    public void obrisiSvaPitanja(SQLiteDatabase db){
+        db.execSQL("DELETE FROM Pitanje");
+    }
+
+    public void obrisiSveRangliste(SQLiteDatabase db){
         db.execSQL("DELETE FROM Ranglista");
     }
 
