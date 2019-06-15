@@ -1,19 +1,23 @@
 package ba.unsa.etf.rma.aktivnosti;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.provider.AlarmClock;
+import android.provider.CalendarContract;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -21,9 +25,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.MyAdapter;
@@ -35,7 +43,7 @@ import ba.unsa.etf.rma.dto.Kategorija;
 import ba.unsa.etf.rma.dto.Kviz;
 import ba.unsa.etf.rma.klase.DohvatiPitanja;
 import ba.unsa.etf.rma.klase.DohvatiRangListu;
-import ba.unsa.etf.rma.klase.NetworkChangeReceiver;
+import ba.unsa.etf.rma.klase.NetworkUtil;
 import ba.unsa.etf.rma.sqlite.BazaOpenHelper;
 
 public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDohvatiKvizoveDone,
@@ -57,8 +65,24 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
     private ArrayAdapter<Kategorija> sAdapter = null;
     private MyAdapter adapter = null;
 
-    public static SQLiteDatabase db = null;
-    public static BazaOpenHelper bazaOpenHelper;
+    private static SQLiteDatabase db = null;
+    private static BazaOpenHelper bazaOpenHelper;
+
+    private BroadcastReceiver internetBroadCast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int status = NetworkUtil.getConnectivityStatusString(context);
+
+            if ("android.net.conn.CONNECTIVITY_CHANGE".equals(intent.getAction())) {
+                if (status == NetworkUtil.NETWORK_STATUS_NOT_CONNECTED) {
+                    Log.d("TAG-net", "Nema Interneta");
+                } else {
+                    Log.d("TAG-net", "Ima Interneta");
+                    // ucitajSaFirebase();
+                }
+            }
+        }
+    };
 
 
     @Override
@@ -74,13 +98,13 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
             db = bazaOpenHelper.getReadableDatabase();
         }
 
-        // bazaOpenHelper.obrisiSveIzTabela(db);
-        // new DohvatiKvizove(KvizoviAkt.this, getResources()).execute();
+
         ucitajSaFirebase();
 
-
-        Intent i = new Intent(KvizoviAkt.this, NetworkChangeReceiver.class);
-        KvizoviAkt.this.sendBroadcast(i);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(internetBroadCast, filter);
+        // todo unregister reciver
 
 
         lvKvizovi = findViewById(R.id.lvKvizovi);
@@ -122,14 +146,20 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         lvKvizovi.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
-                intent.putExtra("kviz", (Kviz) parent.getItemAtPosition(position));
-                startActivity(intent);
+                int brojMinuta = procitajEvente((Kviz) parent.getItemAtPosition(position));
 
-                postaviAlarm((Kviz) parent.getItemAtPosition(position));
+                if (brojMinuta == -1) {
+                    Intent intent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
+                    intent.putExtra("kviz", (Kviz) parent.getItemAtPosition(position));
+                    startActivity(intent);
+                    //intent.putExtra("requestCode", IGRAJ_KVIZ);
+                    //startActivityForResult(intent, IGRAJ_KVIZ);
 
-                //intent.putExtra("requestCode", IGRAJ_KVIZ);
-                //startActivityForResult(intent, IGRAJ_KVIZ);
+                    postaviAlarm((Kviz) parent.getItemAtPosition(position));
+                }
+                else {
+                    dajAlert("Imate događaj u kalendaru za " + brojMinuta + " minuta!");
+                }
             }
         });
 
@@ -267,7 +297,6 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
 
     @Override
     public void onDohvatiDone(ArrayList<Pitanje> listaPitanja) { // todo preimenovati metodu
-        // Ucitavanje pitanja u lokalnu bazu
         bazaOpenHelper.obrisiSvaPitanja(db);
         for (Pitanje p : listaPitanja) {
             bazaOpenHelper.dodajPitanje(p, db);
@@ -310,4 +339,111 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
             startActivity(i);
         }
     }
+
+
+    public int procitajEvente(Kviz kviz) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR}, 8);
+            System.out.println("KALENDAR, zatrazi permisiju");
+            // todo dodati da trazi permisiju prije nego se pozove procitajEvente
+        } else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+
+            Context context = this;
+            String[] projection = new String[]{CalendarContract.Events.CALENDAR_ID, CalendarContract.Events.TITLE, CalendarContract.Events.DESCRIPTION, CalendarContract.Events.DTSTART, CalendarContract.Events.DTEND, CalendarContract.Events.ALL_DAY, CalendarContract.Events.EVENT_LOCATION};
+
+            Calendar startTime = Calendar.getInstance();
+
+            startTime.set(Calendar.HOUR_OF_DAY, 0);
+            startTime.set(Calendar.MINUTE, 0);
+            startTime.set(Calendar.SECOND, 0);
+
+            Calendar endTime = Calendar.getInstance();
+            endTime.add(Calendar.DATE, 1);
+
+            String selection = "(( " + CalendarContract.Events.DTSTART + " >= " + startTime.getTimeInMillis() + " ) AND ( " + CalendarContract.Events.DTSTART + " <= " + endTime.getTimeInMillis() + " ) AND ( deleted != 1 ))";
+            Cursor cursor = context.getContentResolver().query(CalendarContract.Events.CONTENT_URI, projection, selection, null, null);
+
+
+            List<String> events = new ArrayList<>();
+            List<String> timestampoviPocetkaEventova = new ArrayList<>();
+
+            if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
+                do {
+                    events.add(cursor.getString(1));
+                    // Log.d("start date", timestampToDate(Long.parseLong(cursor.getString(3))));
+                    // Log.d("end date", timestampToDate(Long.parseLong(cursor.getString(4))));
+                    timestampoviPocetkaEventova.add(cursor.getString(3));
+                } while (cursor.moveToNext());
+            }
+
+
+            System.out.println("Nazivi eventova");
+            for (String s : events) {
+                System.out.println(s);
+            }
+
+            System.out.println("Datumi pocetka eventova");
+            for (String timestamp : timestampoviPocetkaEventova) {
+                System.out.println(timestampToDate(Long.parseLong(timestamp)));
+            }
+
+
+            int xMinuta = (int) Math.ceil((double) kviz.getPitanja().size() / 2);
+
+            for (int i = 0; i < timestampoviPocetkaEventova.size(); i++) {
+                Date datumEventa = timestampToDate(Long.parseLong(timestampoviPocetkaEventova.get(i)));
+                int yMinuta = (int) brojMinutaDoPocetkaEventa(datumEventa);
+                System.out.println("BROJ MINUTA DO POCETKA EVENTA: " + yMinuta);
+                if (yMinuta > 0 && yMinuta < xMinuta){
+                    return yMinuta;
+                }
+            }
+        }
+        return -1; // Sve uredu
+    }
+
+
+    private Date timestampToDate(long time) {
+        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+        cal.setTimeInMillis(time);
+        String date = DateFormat.format("dd-MM-yyyy hh:mm:ss a", cal).toString();
+
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss a");
+        try {
+            return format.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    private long brojMinutaDoPocetkaEventa(Date datumEventa){
+        Date datumTrenutni = Calendar.getInstance().getTime();
+        long razlika = datumEventa.getTime() - datumTrenutni.getTime();
+        long sekunde = razlika / 1000;
+        long minute = sekunde / 60;
+        long sati = minute / 60;
+        long dani = sati / 24;
+        return minute;
+    }
+
+
+    public void dajAlert(String poruka) {
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle("Greska");
+        alertDialog.setMessage(poruka);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
+
+
+
 }

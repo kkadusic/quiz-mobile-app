@@ -10,8 +10,10 @@ import ba.unsa.etf.rma.aktivnosti.KvizoviAkt;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
+
     @Override
     public void onReceive(final Context context, final Intent intent) {
+        /*
         int status = NetworkUtil.getConnectivityStatusString(context);
 
         if ("android.net.conn.CONNECTIVITY_CHANGE".equals(intent.getAction())) {
@@ -19,9 +21,9 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 Log.d("TAG-net", "Nema Interneta");
             } else {
                 Log.d("TAG-net", "Ima Interneta");
-                // new KvizoviAkt().ucitajSaFirebase();
-                // context.sendBroadcast(new Intent("INTERNET_DOSAO"));
+                new KvizoviAkt().proba();
             }
         }
+        */
     }
 }
