@@ -287,6 +287,7 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
     }
 
 
+
     public void obrisiSveIzTabela(SQLiteDatabase db){
         db.execSQL("DELETE FROM Kategorija");
         db.execSQL("DELETE FROM Pitanje");
@@ -301,5 +302,6 @@ public class BazaOpenHelper extends SQLiteOpenHelper { //implements Serializable
     public void obrisiSveRangliste(SQLiteDatabase db){
         db.execSQL("DELETE FROM Ranglista");
     }
+
 
 }

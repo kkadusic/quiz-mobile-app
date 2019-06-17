@@ -1,6 +1,11 @@
 package ba.unsa.etf.rma.aktivnosti;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +25,7 @@ import ba.unsa.etf.rma.fragmenti.RangLista;
 import ba.unsa.etf.rma.klase.DohvatiRangListu;
 import ba.unsa.etf.rma.klase.FBWrite;
 import ba.unsa.etf.rma.dto.Kviz;
+import ba.unsa.etf.rma.sqlite.BazaOpenHelper;
 
 public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFragmentInteractionListener,
         InformacijeFrag.OnFragmentInteractionListener, PitanjeFrag.OnCompleteListener, RangLista.OnFragmentInteractionListener,
@@ -27,6 +33,8 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
 
     private Kviz kviz;
     private ArrayList<Ranglista> rangliste = new ArrayList<>();
+    private static SQLiteDatabase db = null;
+    private static BazaOpenHelper bazaOpenHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +46,12 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
 
         getIntent().putExtra("kvizIgraj", kviz);
 
+        bazaOpenHelper = new BazaOpenHelper(this);
+        try {
+            db = bazaOpenHelper.getWritableDatabase();
+        } catch (SQLException e) {
+            db = bazaOpenHelper.getReadableDatabase();
+        }
 
         InformacijeFrag informacijeFrag = new InformacijeFrag();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -93,9 +107,16 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
             }
         }
 
-        FBWrite fb = new FBWrite(getResources());
-        String dokument = fb.dodajRangListu(imeIgraca, procenatTacnih, Integer.toString(pozicija), kviz.getNaziv());
-        new FBWrite(getResources()).execute("Rangliste", kviz.getNaziv() + " " + currentDateTimeString, dokument);
+        // if (isNetworkAvailable()) {
+            FBWrite fb = new FBWrite(getResources());
+            String dokument = fb.dodajRangListu(imeIgraca, procenatTacnih, Integer.toString(pozicija), kviz.getNaziv());
+            new FBWrite(getResources()).execute("Rangliste", kviz.getNaziv() + " " + currentDateTimeString, dokument);
+
+           // bazaOpenHelper.dodajRanglistu(new Ranglista(imeIgraca, procenatTacnih, Integer.toString(pozicija), kviz.getNaziv()), db);
+        // }
+        // else {
+           //  bazaOpenHelper.dodajRanglistu(new Ranglista(imeIgraca, procenatTacnih, Integer.toString(pozicija), kviz.getNaziv()), db);
+        // }
     }
 
 
@@ -131,5 +152,11 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         });
 
         return ranglistas;
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

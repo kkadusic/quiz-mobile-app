@@ -11,6 +11,8 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.AlarmClock;
 import android.provider.CalendarContract;
 import android.support.annotation.Nullable;
@@ -76,9 +78,10 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
             if ("android.net.conn.CONNECTIVITY_CHANGE".equals(intent.getAction())) {
                 if (status == NetworkUtil.NETWORK_STATUS_NOT_CONNECTED) {
                     Log.d("TAG-net", "Nema Interneta");
+                    ucitajIzSqlite();
                 } else {
                     Log.d("TAG-net", "Ima Interneta");
-                    // ucitajSaFirebase();
+                    ucitajSaFirebase();
                 }
             }
         }
@@ -90,6 +93,7 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         super.onCreate(savedInstanceState);
         setContentView(R.layout.kvizovi_akt);
 
+        initialize();
 
         bazaOpenHelper = new BazaOpenHelper(this);
         try {
@@ -98,23 +102,11 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
             db = bazaOpenHelper.getReadableDatabase();
         }
 
-
-        ucitajSaFirebase();
-
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         registerReceiver(internetBroadCast, filter);
         // todo unregister reciver
 
-
-        lvKvizovi = findViewById(R.id.lvKvizovi);
-        spPostojeceKategorije = findViewById(R.id.spPostojeceKategorije);
-
-        initialize();
-
-        sAdapter = new ArrayAdapter<>(KvizoviAkt.this, android.R.layout.simple_spinner_item, kategorije);
-        sAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spPostojeceKategorije.setAdapter(sAdapter);
 
 
         lvFooterView.setOnClickListener(new View.OnClickListener() {
@@ -146,20 +138,20 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         lvKvizovi.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int brojMinuta = procitajEvente((Kviz) parent.getItemAtPosition(position));
+                //int brojMinuta = procitajEvente((Kviz) parent.getItemAtPosition(position));
 
-                if (brojMinuta == -1) {
+                //if (brojMinuta == -1) { todo odkomentarisati
                     Intent intent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
                     intent.putExtra("kviz", (Kviz) parent.getItemAtPosition(position));
                     startActivity(intent);
                     //intent.putExtra("requestCode", IGRAJ_KVIZ);
                     //startActivityForResult(intent, IGRAJ_KVIZ);
 
-                    postaviAlarm((Kviz) parent.getItemAtPosition(position));
-                }
-                else {
-                    dajAlert("Imate događaj u kalendaru za " + brojMinuta + " minuta!");
-                }
+                    //postaviAlarm((Kviz) parent.getItemAtPosition(position));
+                //}
+                //else {
+                 //   dajAlert("Imate događaj u kalendaru za " + brojMinuta + " minuta!");
+                //}
             }
         });
 
@@ -171,18 +163,26 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
 
                 if (kategorija != null) {
                     if (kategorija.getId().equals("-1")) {
-                        // prikazaniKvizovi.clear();
-                        // prikazaniKvizovi.addAll(sviKvizovi);
-                        // adapter.notifyDataSetChanged();
-
-                        // bazaOpenHelper.obrisiSveIzTabela(db);
+                        if (isNetworkAvailable()){
+                            ucitajSaFirebase();
+                        }
+                        else {
+                            prikazaniKvizovi.clear();
+                            prikazaniKvizovi.addAll(sviKvizovi);
+                            adapter.notifyDataSetChanged();
+                        }
                         // new DohvatiKvizove(KvizoviAkt.this, getResources()).execute();
-                        ucitajSaFirebase();
                     } else {
-                        prikazaniKvizovi.clear();
-                        adapter.notifyDataSetChanged();
-
-                        new DohvatiKvizove2(KvizoviAkt.this, getResources(), kategorija).execute();
+                        if (isNetworkAvailable()) {
+                            new DohvatiKvizove2(KvizoviAkt.this, getResources(), kategorija).execute();
+                        }
+                        else {
+                            prikazaniKvizovi.clear();
+                            for (Kviz k : sviKvizovi)
+                                if (k.getKategorija() != null && k.getKategorija().getNaziv().equals(kategorija.getNaziv()) || kategorija.getId().equals("-1"))
+                                    prikazaniKvizovi.add(k);
+                            adapter.notifyDataSetChanged();
+                        }
                     }
                 }
             }
@@ -234,10 +234,17 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         sAdapter.notifyDataSetChanged();
     }
 
-    private void initialize() {
+    private void initialize(){
+        lvKvizovi = findViewById(R.id.lvKvizovi);
+        spPostojeceKategorije = findViewById(R.id.spPostojeceKategorije);
+
         adapter = new MyAdapter(KvizoviAkt.this, prikazaniKvizovi, getResources());
         lvKvizovi.setAdapter(adapter);
         lvKvizovi.addFooterView(lvFooterView = adapter.getFooterView(lvKvizovi, "Dodaj kviz"));
+
+        sAdapter = new ArrayAdapter<>(KvizoviAkt.this, android.R.layout.simple_spinner_item, kategorije);
+        sAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spPostojeceKategorije.setAdapter(sAdapter);
     }
 
     @Override
@@ -269,15 +276,12 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         sAdapter.notifyDataSetChanged();
 
 
-        // Ucitavanje kvizova i kategorija u lokalnu bazu
-        for (Kategorija k : listaKategorija) {
+        for (Kategorija k : kategorije)
             bazaOpenHelper.dodajKategoriju(k, db);
-        }
         Log.d("KATEGORIJE", "Upisane sve kategorije u SQLite");
 
-        for (Kviz k : listaKvizova) {
+        for (Kviz k : listaKvizova)
             bazaOpenHelper.dodajKviz(k, db);
-        }
         Log.d("KVIZOVI", "Upisani kvizovi u SQLite");
     }
 
@@ -295,21 +299,40 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         new DohvatiRangListu(KvizoviAkt.this, getResources()).execute();
     }
 
+
+    public void ucitajIzSqlite(){
+        System.out.println("UCITAVANJE IZ SQLITE");
+        sviKvizovi.clear();
+        prikazaniKvizovi.clear();
+
+        sviKvizovi.addAll(bazaOpenHelper.dohvatiKvizove(db));
+        prikazaniKvizovi.addAll(bazaOpenHelper.dohvatiKvizove(db));
+        for (Kviz k : sviKvizovi){
+            System.out.println(k.toString());
+        }
+        adapter.notifyDataSetChanged();
+
+        kategorije.clear();
+        kategorije.addAll(bazaOpenHelper.dohvatiKategorije(db));
+        for (Kategorija k : kategorije){
+            System.out.println(k.toString());
+        }
+        sAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onDohvatiDone(ArrayList<Pitanje> listaPitanja) { // todo preimenovati metodu
         bazaOpenHelper.obrisiSvaPitanja(db);
-        for (Pitanje p : listaPitanja) {
+        for (Pitanje p : listaPitanja)
             bazaOpenHelper.dodajPitanje(p, db);
-        }
         Log.d("PITANJA", "Upisana pitanja u SQLite");
     }
 
     @Override
     public void onDohvatiRanglisteDone(ArrayList<Ranglista> rangliste) {
         bazaOpenHelper.obrisiSveRangliste(db);
-        for (Ranglista rl : rangliste) {
+        for (Ranglista rl : rangliste)
             bazaOpenHelper.dodajRanglistu(rl, db);
-        }
         Log.d("RANGLISTE", "Upisane rangliste u SQLite");
     }
 
@@ -444,6 +467,12 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         alertDialog.show();
     }
 
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
 
 }
