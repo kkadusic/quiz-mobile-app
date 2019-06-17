@@ -25,6 +25,7 @@ import ba.unsa.etf.rma.fragmenti.RangLista;
 import ba.unsa.etf.rma.klase.DohvatiRangListu;
 import ba.unsa.etf.rma.klase.FBWrite;
 import ba.unsa.etf.rma.dto.Kviz;
+import ba.unsa.etf.rma.sqlite.BazaOpenHelper;
 
 public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFragmentInteractionListener,
         InformacijeFrag.OnFragmentInteractionListener, PitanjeFrag.OnCompleteListener, RangLista.OnFragmentInteractionListener,
@@ -32,6 +33,9 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
 
     private Kviz kviz;
     private ArrayList<Ranglista> rangliste = new ArrayList<>();
+
+    private static SQLiteDatabase db = null;
+    private static BazaOpenHelper bazaOpenHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +61,24 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         transaction2.addToBackStack(null);
         transaction2.commit();
 
-        new DohvatiRangListu(IgrajKvizAkt.this, getResources()).execute();
+        bazaOpenHelper = new BazaOpenHelper(this);
+        try {
+            db = bazaOpenHelper.getWritableDatabase();
+        } catch (SQLException e) {
+            db = bazaOpenHelper.getReadableDatabase();
+        }
+
+        if (isNetworkAvailable()) {
+            new DohvatiRangListu(IgrajKvizAkt.this, getResources()).execute();
+        }
+        else {
+            ArrayList<Ranglista> sveRangListe = new ArrayList<>(bazaOpenHelper.dohvatiRangliste(db));
+            for (int i = 0; i < sveRangListe.size(); i++) {
+                if (sveRangListe.get(i).getNazivKviza().equals(kviz.getNaziv())) {
+                    rangliste.add(sveRangListe.get(i));
+                }
+            }
+        }
     }
 
 
@@ -97,16 +118,18 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
             }
         }
 
-        // if (isNetworkAvailable()) {
+         if (isNetworkAvailable()) {
             FBWrite fb = new FBWrite(getResources());
             String dokument = fb.dodajRangListu(imeIgraca, procenatTacnih, Integer.toString(pozicija), kviz.getNaziv());
             new FBWrite(getResources()).execute("Rangliste", kviz.getNaziv() + " " + currentDateTimeString, dokument);
 
-           // bazaOpenHelper.dodajRanglistu(new Ranglista(imeIgraca, procenatTacnih, Integer.toString(pozicija), kviz.getNaziv()), db);
-        // }
-        // else {
-           //  bazaOpenHelper.dodajRanglistu(new Ranglista(imeIgraca, procenatTacnih, Integer.toString(pozicija), kviz.getNaziv()), db);
-        // }
+            System.out.println("POZICIJA = " + pozicija);
+            bazaOpenHelper.dodajRanglistu(new Ranglista(kviz.getNaziv(), imeIgraca, procenatTacnih, Integer.toString(pozicija)), db);
+         }
+         else {
+             System.out.println("POZICIJA = " + pozicija);
+             bazaOpenHelper.dodajRanglistu(new Ranglista(kviz.getNaziv(), imeIgraca, procenatTacnih, Integer.toString(pozicija)), db);
+         }
     }
 
 
