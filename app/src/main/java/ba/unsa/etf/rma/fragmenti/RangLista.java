@@ -2,6 +2,10 @@ package ba.unsa.etf.rma.fragmenti;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,9 +20,11 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.aktivnosti.IgrajKvizAkt;
 import ba.unsa.etf.rma.dto.Kviz;
 import ba.unsa.etf.rma.dto.Ranglista;
 import ba.unsa.etf.rma.klase.DohvatiRangListu;
+import ba.unsa.etf.rma.sqlite.BazaOpenHelper;
 
 
 public class RangLista extends Fragment implements DohvatiRangListu.IDohvatiRangListeDone {
@@ -33,6 +39,9 @@ public class RangLista extends Fragment implements DohvatiRangListu.IDohvatiRang
     private ArrayList<String> podaci = new ArrayList<>();
     private ArrayList<Ranglista> rangliste = new ArrayList<>();
     private ArrayAdapter<String> adapterPodaci;
+
+    private static SQLiteDatabase db = null;
+    private static BazaOpenHelper bazaOpenHelper;
 
     public RangLista() {
     }
@@ -67,7 +76,45 @@ public class RangLista extends Fragment implements DohvatiRangListu.IDohvatiRang
         adapterPodaci = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1, podaci);
         lvPodaci.setAdapter(adapterPodaci);
 
-        new DohvatiRangListu(RangLista.this, getResources()).execute();
+        bazaOpenHelper = new BazaOpenHelper(getContext());
+        try {
+            db = bazaOpenHelper.getWritableDatabase();
+        } catch (SQLException e) {
+            db = bazaOpenHelper.getReadableDatabase();
+        }
+
+
+        if (isNetworkAvailable()) {
+            System.out.println("RANGLISTE UCITAVANJE IZ FIREBASE");
+            new DohvatiRangListu(RangLista.this, getResources()).execute();
+        }
+        else {
+            podaci.clear();
+            System.out.println("RANGLISTE UCITAVANJE IZ SQLITE");
+            ArrayList<Ranglista> sveRangListe = new ArrayList<>(bazaOpenHelper.dohvatiRangliste(db));
+
+            for (int i = 0; i < sveRangListe.size(); i++) {
+                if (sveRangListe.get(i).getNazivKviza().equals(kviz.getNaziv())) {
+                    rangliste.add(sveRangListe.get(i));
+                }
+            }
+
+            Collections.sort(rangliste, new Comparator<Ranglista>() {
+                @Override
+                public int compare(Ranglista s1, Ranglista s2) {
+                    String a = s1.getProcenatTacnih().replaceAll("[^0-9]", "");
+                    String b = s2.getProcenatTacnih().replaceAll("[^0-9]", "");
+                    return Double.valueOf(a).compareTo(Double.valueOf(b));
+                }
+            });
+
+            for (int i = rangliste.size() - 1; i >= 0; i--) {
+                podaci.add(rangliste.get(i).getPozicija() + ".       " + rangliste.get(i).getNazivIgraca() +
+                        "        " + rangliste.get(i).getProcenatTacnih());
+            }
+
+            adapterPodaci.notifyDataSetChanged();
+        }
         return view;
     }
 
@@ -119,5 +166,11 @@ public class RangLista extends Fragment implements DohvatiRangListu.IDohvatiRang
 
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

@@ -26,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -78,6 +79,7 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
             if ("android.net.conn.CONNECTIVITY_CHANGE".equals(intent.getAction())) {
                 if (status == NetworkUtil.NETWORK_STATUS_NOT_CONNECTED) {
                     Log.d("TAG-net", "Nema Interneta");
+                    // Toast.makeText(KvizoviAkt.this, "Nema Interneta!", Toast.LENGTH_SHORT).show();
                     ucitajIzSqlite();
                 } else {
                     Log.d("TAG-net", "Ima Interneta");

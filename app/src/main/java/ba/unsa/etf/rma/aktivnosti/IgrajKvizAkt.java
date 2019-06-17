@@ -25,7 +25,6 @@ import ba.unsa.etf.rma.fragmenti.RangLista;
 import ba.unsa.etf.rma.klase.DohvatiRangListu;
 import ba.unsa.etf.rma.klase.FBWrite;
 import ba.unsa.etf.rma.dto.Kviz;
-import ba.unsa.etf.rma.sqlite.BazaOpenHelper;
 
 public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFragmentInteractionListener,
         InformacijeFrag.OnFragmentInteractionListener, PitanjeFrag.OnCompleteListener, RangLista.OnFragmentInteractionListener,
@@ -33,8 +32,6 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
 
     private Kviz kviz;
     private ArrayList<Ranglista> rangliste = new ArrayList<>();
-    private static SQLiteDatabase db = null;
-    private static BazaOpenHelper bazaOpenHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +42,6 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
         kviz = intent.getParcelableExtra("kviz");
 
         getIntent().putExtra("kvizIgraj", kviz);
-
-        bazaOpenHelper = new BazaOpenHelper(this);
-        try {
-            db = bazaOpenHelper.getWritableDatabase();
-        } catch (SQLException e) {
-            db = bazaOpenHelper.getReadableDatabase();
-        }
 
         InformacijeFrag informacijeFrag = new InformacijeFrag();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
