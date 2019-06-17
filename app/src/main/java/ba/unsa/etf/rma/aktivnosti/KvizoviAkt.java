@@ -110,6 +110,11 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         // todo unregister reciver
 
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR}, 8);
+        }
+
 
         lvFooterView.setOnClickListener(new View.OnClickListener() {
                                             @Override
@@ -140,20 +145,19 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         lvKvizovi.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //int brojMinuta = procitajEvente((Kviz) parent.getItemAtPosition(position));
+                int brojMinuta = procitajEvente((Kviz) parent.getItemAtPosition(position));
 
-                //if (brojMinuta == -1) { todo odkomentarisati
+                if (brojMinuta == -1) {
                     Intent intent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
                     intent.putExtra("kviz", (Kviz) parent.getItemAtPosition(position));
                     startActivity(intent);
-                    //intent.putExtra("requestCode", IGRAJ_KVIZ);
-                    //startActivityForResult(intent, IGRAJ_KVIZ);
+                    intent.putExtra("requestCode", IGRAJ_KVIZ);
+                    startActivityForResult(intent, IGRAJ_KVIZ);
 
-                    //postaviAlarm((Kviz) parent.getItemAtPosition(position));
-                //}
-                //else {
-                 //   dajAlert("Imate događaj u kalendaru za " + brojMinuta + " minuta!");
-                //}
+                    postaviAlarm((Kviz) parent.getItemAtPosition(position));
+                } else {
+                    dajAlert("Imate događaj u kalendaru za " + brojMinuta + " minuta!");
+                }
             }
         });
 
@@ -165,20 +169,17 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
 
                 if (kategorija != null) {
                     if (kategorija.getId().equals("-1")) {
-                        if (isNetworkAvailable()){
+                        if (isNetworkAvailable()) {
                             ucitajSaFirebase();
-                        }
-                        else {
+                        } else {
                             prikazaniKvizovi.clear();
                             prikazaniKvizovi.addAll(sviKvizovi);
                             adapter.notifyDataSetChanged();
                         }
-                        // new DohvatiKvizove(KvizoviAkt.this, getResources()).execute();
                     } else {
                         if (isNetworkAvailable()) {
                             new DohvatiKvizove2(KvizoviAkt.this, getResources(), kategorija).execute();
-                        }
-                        else {
+                        } else {
                             prikazaniKvizovi.clear();
                             for (Kviz k : sviKvizovi)
                                 if (k.getKategorija() != null && k.getKategorija().getNaziv().equals(kategorija.getNaziv()) || kategorija.getId().equals("-1"))
@@ -236,7 +237,7 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         sAdapter.notifyDataSetChanged();
     }
 
-    private void initialize(){
+    private void initialize() {
         lvKvizovi = findViewById(R.id.lvKvizovi);
         spPostojeceKategorije = findViewById(R.id.spPostojeceKategorije);
 
@@ -260,20 +261,13 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
 
 
         kategorije.clear();
-        for (Kategorija k : listaKategorija) {
-            if (k.getNaziv().equals("Svi")) {
-                kategorije.add(k);
-                listaKategorija.remove(k);
-            }
-        }
-        /*
-        for (int i = 0; i < listaKategorija.size(); i++) { todo namjestiti
+        for (int i = 0; i < listaKategorija.size(); i++) {
             if (listaKategorija.get(i).getNaziv().equals("Svi")) {
                 kategorije.add(listaKategorija.get(i));
                 listaKategorija.remove(listaKategorija.get(i));
             }
         }
-        */
+
         kategorije.addAll(listaKategorija);
         sAdapter.notifyDataSetChanged();
 
@@ -302,21 +296,21 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
     }
 
 
-    public void ucitajIzSqlite(){
+    public void ucitajIzSqlite() {
         System.out.println("UCITAVANJE IZ SQLITE");
         sviKvizovi.clear();
         prikazaniKvizovi.clear();
 
         sviKvizovi.addAll(bazaOpenHelper.dohvatiKvizove(db));
         prikazaniKvizovi.addAll(bazaOpenHelper.dohvatiKvizove(db));
-        for (Kviz k : sviKvizovi){
+        for (Kviz k : sviKvizovi) {
             System.out.println(k.toString());
         }
         adapter.notifyDataSetChanged();
 
         kategorije.clear();
         kategorije.addAll(bazaOpenHelper.dohvatiKategorije(db));
-        for (Kategorija k : kategorije){
+        for (Kategorija k : kategorije) {
             System.out.println(k.toString());
         }
         sAdapter.notifyDataSetChanged();
@@ -370,10 +364,8 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR}, 8);
-            System.out.println("KALENDAR, zatrazi permisiju");
-            // todo dodati da trazi permisiju prije nego se pozove procitajEvente
-        } else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+
+        } else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
 
             Context context = this;
             String[] projection = new String[]{CalendarContract.Events.CALENDAR_ID, CalendarContract.Events.TITLE, CalendarContract.Events.DESCRIPTION, CalendarContract.Events.DTSTART, CalendarContract.Events.DTEND, CalendarContract.Events.ALL_DAY, CalendarContract.Events.EVENT_LOCATION};
@@ -421,7 +413,7 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
                 Date datumEventa = timestampToDate(Long.parseLong(timestampoviPocetkaEventova.get(i)));
                 int yMinuta = (int) brojMinutaDoPocetkaEventa(datumEventa);
                 System.out.println("BROJ MINUTA DO POCETKA EVENTA: " + yMinuta);
-                if (yMinuta > 0 && yMinuta < xMinuta){
+                if (yMinuta > 0 && yMinuta < xMinuta) {
                     return yMinuta;
                 }
             }
@@ -445,7 +437,7 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
     }
 
 
-    private long brojMinutaDoPocetkaEventa(Date datumEventa){
+    private long brojMinutaDoPocetkaEventa(Date datumEventa) {
         Date datumTrenutni = Calendar.getInstance().getTime();
         long razlika = datumEventa.getTime() - datumTrenutni.getTime();
         long sekunde = razlika / 1000;
