@@ -1,4 +1,4 @@
-package ba.unsa.etf.rma.klase;
+package ba.unsa.etf.rma.firebase;
 
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -8,11 +8,9 @@ import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 import ba.unsa.etf.rma.R;
 

@@ -29,12 +29,12 @@ import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.MyAdapter;
-import ba.unsa.etf.rma.klase.FBWrite;
-import ba.unsa.etf.rma.klase.DohvatiPitanja;
+import ba.unsa.etf.rma.firebase.FirebaseWrite;
+import ba.unsa.etf.rma.firebase.DohvatiPitanja;
 import ba.unsa.etf.rma.dto.Kategorija;
 import ba.unsa.etf.rma.dto.Kviz;
 import ba.unsa.etf.rma.dto.Pitanje;
-import ba.unsa.etf.rma.klase.ObrisiKviz;
+import ba.unsa.etf.rma.firebase.ObrisiKviz;
 
 import static ba.unsa.etf.rma.aktivnosti.KvizoviAkt.AZURIRAJ_KVIZ;
 
@@ -139,12 +139,12 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
                                     new ObrisiKviz(getResources()).execute(staroImeKviza);
                             }
 
-                            FBWrite fb = new FBWrite(getResources());
+                            FirebaseWrite fb = new FirebaseWrite(getResources());
                             String nazivKviza = fb.napraviPolje("naziv", trenutniKviz.getNaziv());
                             String pitanjaKviza = fb.napraviPolje("pitanja", naziviPitanja);
                             String idKategorije = fb.napraviPolje("idKategorije", trenutniKviz.getKategorija().getNaziv());
                             String dokument = fb.napraviDokument(nazivKviza, pitanjaKviza, idKategorije);
-                            new FBWrite(getResources()).execute("Kvizovi", trenutniKviz.getNaziv(), dokument);
+                            new FirebaseWrite(getResources()).execute("Kvizovi", trenutniKviz.getNaziv(), dokument);
 
                         } else
                             Toast.makeText(DodajKvizAkt.this, "Kviz sa navedenim imenom već postoji!", Toast.LENGTH_SHORT).show();
@@ -358,11 +358,11 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
                     sAdapter.notifyDataSetChanged();
                     spKategorije.setSelection(spKategorije.getCount() - 2);
 
-                    FBWrite fb = new FBWrite(getResources());
+                    FirebaseWrite fb = new FirebaseWrite(getResources());
                     String poljeNaziv = fb.napraviPolje("naziv", kategorija.getNaziv());
                     String poljeId = fb.napraviPolje("idIkonice", Integer.parseInt(kategorija.getId()));
                     String dokument = fb.napraviDokument(poljeNaziv, poljeId);
-                    new FBWrite(getResources()).execute("Kategorije", kategorija.getNaziv(), dokument);
+                    new FirebaseWrite(getResources()).execute("Kategorije", kategorija.getNaziv(), dokument);
                 } else {
                     for (int i = 0; i < kategorije.size(); i++) {
                         if (kategorije.get(i).getNaziv().equals(nazivKategorije)) {
@@ -411,12 +411,12 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
                     dodana.add(new Pitanje(nazivPitanja, nazivPitanja, odgovori, tacanOdgovor));
                     adapterDodana.notifyDataSetChanged();
 
-                    FBWrite fb = new FBWrite(getResources());
+                    FirebaseWrite fb = new FirebaseWrite(getResources());
                     String poljeNaziv = fb.napraviPolje("naziv", nazivPitanja);
                     String poljeOdgovori = fb.napraviPolje("odgovori", odgovori);
                     String poljeIndex = fb.napraviPolje("indexTacnog", Integer.parseInt(indeksTacnogOdgovora));
                     String dokument = fb.napraviDokument(poljeNaziv, poljeIndex, poljeOdgovori);
-                    new FBWrite(getResources()).execute("Pitanja", nazivPitanja, dokument);
+                    new FirebaseWrite(getResources()).execute("Pitanja", nazivPitanja, dokument);
                 } else {
                     dajAlert("Kviz nije ispravan postoje dva pitanja sa istim nazivom!");
                     resetujPolja();

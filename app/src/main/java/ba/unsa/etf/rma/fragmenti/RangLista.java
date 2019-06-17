@@ -20,10 +20,9 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import ba.unsa.etf.rma.R;
-import ba.unsa.etf.rma.aktivnosti.IgrajKvizAkt;
 import ba.unsa.etf.rma.dto.Kviz;
 import ba.unsa.etf.rma.dto.Ranglista;
-import ba.unsa.etf.rma.klase.DohvatiRangListu;
+import ba.unsa.etf.rma.firebase.DohvatiRangListu;
 import ba.unsa.etf.rma.sqlite.BazaOpenHelper;
 
 

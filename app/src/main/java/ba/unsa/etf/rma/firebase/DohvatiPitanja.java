@@ -1,4 +1,4 @@
-package ba.unsa.etf.rma.klase;
+package ba.unsa.etf.rma.firebase;
 
 import android.content.res.Resources;
 import android.os.AsyncTask;

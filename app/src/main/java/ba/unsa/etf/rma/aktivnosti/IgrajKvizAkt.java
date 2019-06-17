@@ -22,8 +22,8 @@ import ba.unsa.etf.rma.dto.Ranglista;
 import ba.unsa.etf.rma.fragmenti.InformacijeFrag;
 import ba.unsa.etf.rma.fragmenti.PitanjeFrag;
 import ba.unsa.etf.rma.fragmenti.RangLista;
-import ba.unsa.etf.rma.klase.DohvatiRangListu;
-import ba.unsa.etf.rma.klase.FBWrite;
+import ba.unsa.etf.rma.firebase.DohvatiRangListu;
+import ba.unsa.etf.rma.firebase.FirebaseWrite;
 import ba.unsa.etf.rma.dto.Kviz;
 import ba.unsa.etf.rma.sqlite.BazaOpenHelper;
 
@@ -70,8 +70,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
 
         if (isNetworkAvailable()) {
             new DohvatiRangListu(IgrajKvizAkt.this, getResources()).execute();
-        }
-        else {
+        } else {
             ArrayList<Ranglista> sveRangListe = new ArrayList<>(bazaOpenHelper.dohvatiRangliste(db));
             for (int i = 0; i < sveRangListe.size(); i++) {
                 if (sveRangListe.get(i).getNazivKviza().equals(kviz.getNaziv())) {
@@ -118,18 +117,15 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnFra
             }
         }
 
-         if (isNetworkAvailable()) {
-            FBWrite fb = new FBWrite(getResources());
+        if (isNetworkAvailable()) {
+            FirebaseWrite fb = new FirebaseWrite(getResources());
             String dokument = fb.dodajRangListu(imeIgraca, procenatTacnih, Integer.toString(pozicija), kviz.getNaziv());
-            new FBWrite(getResources()).execute("Rangliste", kviz.getNaziv() + " " + currentDateTimeString, dokument);
+            new FirebaseWrite(getResources()).execute("Rangliste", kviz.getNaziv() + " " + currentDateTimeString, dokument);
 
-            System.out.println("POZICIJA = " + pozicija);
             bazaOpenHelper.dodajRanglistu(new Ranglista(kviz.getNaziv(), imeIgraca, procenatTacnih, Integer.toString(pozicija)), db);
-         }
-         else {
-             System.out.println("POZICIJA = " + pozicija);
-             bazaOpenHelper.dodajRanglistu(new Ranglista(kviz.getNaziv(), imeIgraca, procenatTacnih, Integer.toString(pozicija)), db);
-         }
+        } else {
+            bazaOpenHelper.dodajRanglistu(new Ranglista(kviz.getNaziv(), imeIgraca, procenatTacnih, Integer.toString(pozicija)), db);
+        }
     }
 
 

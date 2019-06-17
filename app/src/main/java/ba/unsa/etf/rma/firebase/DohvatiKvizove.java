@@ -1,6 +1,5 @@
-package ba.unsa.etf.rma.klase;
+package ba.unsa.etf.rma.firebase;
 
-import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -28,13 +27,12 @@ import ba.unsa.etf.rma.dto.Kategorija;
 import ba.unsa.etf.rma.dto.Kviz;
 import ba.unsa.etf.rma.dto.Pitanje;
 
-public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
+public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
     private ArrayList<Kviz> kvizovi = new ArrayList<>();
     private ArrayList<Pitanje> pitanja = new ArrayList<>();
-    private Kategorija kategorija;
+    private ArrayList<Kategorija> kategorije = new ArrayList<>();
 
     private Resources resources;
-
 
     @Override
     protected Void doInBackground(String... strings) {
@@ -47,9 +45,8 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
             credentials.refreshToken();
             String TOKEN = credentials.getAccessToken();
 
-
             String url1 = "https://firestore.googleapis.com/v1/projects/rma19kadusickerim68/databases/(default)/documents:runQuery?access_token=";
-            String query = queryPitanja();
+            String query = queryKategorije();
 
             URL url = new URL(url1 + URLEncoder.encode(TOKEN, "UTF-8"));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -69,8 +66,7 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
             String rezultat = convertStreamToString(in);
             rezultat = "{ \"documents\": " + rezultat + "}";
 
-            parsirajPitanja(rezultat);
-
+            parsirajKategorije(rezultat);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,9 +79,8 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
             credentials.refreshToken();
             String TOKEN = credentials.getAccessToken();
 
-
             String url1 = "https://firestore.googleapis.com/v1/projects/rma19kadusickerim68/databases/(default)/documents:runQuery?access_token=";
-            String query = queryFiltriraniKvizovi();
+            String query = queryPitanja();
 
             URL url = new URL(url1 + URLEncoder.encode(TOKEN, "UTF-8"));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -94,18 +89,52 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept", "application/json");
 
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = query.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            int code = conn.getResponseCode(); // response kod
+            InputStream in = conn.getInputStream();
+            String rezultat = convertStreamToString(in);
+            rezultat = "{ \"documents\": " + rezultat + "}";
+
+            parsirajPitanja(rezultat);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        try {
+            InputStream tajnaStream = resources.openRawResource(R.raw.secret);
+            credentials = GoogleCredential.fromStream(tajnaStream).createScoped(Lists.newArrayList("https://www.googleapis.com/auth/datastore"));
+
+            credentials.refreshToken();
+            String TOKEN = credentials.getAccessToken();
+
+            String url1 = "https://firestore.googleapis.com/v1/projects/rma19kadusickerim68/databases/(default)/documents:runQuery?access_token=";
+            String query = queryKvizovi();
+
+            URL url = new URL(url1 + URLEncoder.encode(TOKEN, "UTF-8"));
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setRequestMethod("POST"); // GET, POST
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept", "application/json");
 
             try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = query.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
+
             int code = conn.getResponseCode(); // response kod
             InputStream in = conn.getInputStream();
             String rezultat = convertStreamToString(in);
             rezultat = "{ \"documents\": " + rezultat + "}";
 
             parsirajKvizove(rezultat);
-
+            Log.d("TOKEN", TOKEN);
+            Log.d("TOKEN-TAG", "Pozvan Token iz DohvatiKvizove");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -114,32 +143,30 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
     }
 
 
-    public interface IDohvatiFilterKvizoveDone {
-        void onDohvatiFilterKvizoveDone(ArrayList<Kviz> lista);
+    public interface IDohvatiKvizoveDone {
+        void onDohvatiDone(ArrayList<Kviz> lista, ArrayList<Kategorija> listaKategorije);
     }
 
-    private IDohvatiFilterKvizoveDone poziv;
+    private IDohvatiKvizoveDone poziv;
 
-    public DohvatiKvizove2(IDohvatiFilterKvizoveDone p, Resources r, Kategorija kategorija) {
+    public DohvatiKvizove(IDohvatiKvizoveDone p, Resources resources) {
         poziv = p;
-        resources = r;
-        this.kategorija = kategorija;
+        this.resources = resources;
     }
 
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
         if (poziv != null) {
-            poziv.onDohvatiFilterKvizoveDone(kvizovi);
+            poziv.onDohvatiDone(kvizovi, kategorije);
         }
     }
-
 
     private String convertStreamToString(InputStream is) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
 
-        String line = null;
+        String line;
         try {
             while ((line = reader.readLine()) != null) {
                 sb.append(line).append("\n");
@@ -170,9 +197,7 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
 
                 JSONObject naziv = new JSONObject(fields.getString("naziv"));
 
-
                 JSONObject idKategorije = new JSONObject(fields.getString("idKategorije"));
-                Log.d("TAG-IDKATEGORIJE", idKategorije.getString("stringValue"));
 
                 JSONObject odgovori = new JSONObject(fields.getString("pitanja"));
                 JSONObject arrayValue = new JSONObject(odgovori.getString("arrayValue"));
@@ -181,8 +206,12 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
                 Kviz kviz = new Kviz();
                 kviz.setNaziv(naziv.getString("stringValue"));
 
-                kviz.setKategorija(kategorija);
-
+                for (Kategorija k : kategorije) {
+                    if (k.getNaziv().equals(idKategorije.getString("stringValue"))) {
+                        kviz.setKategorija(k);
+                        break;
+                    }
+                }
 
                 for (Pitanje p : pitanja) {
                     for (int j = 0; j < values.length(); j++) {
@@ -208,25 +237,19 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
 
             for (int i = 0; i < documents.length(); i++) {
                 JSONObject doc = documents.getJSONObject(i);
-                // Log.d("TAG-DOC1", doc.toString());
 
                 JSONObject doc2 = new JSONObject(doc.getString("document"));
-                // Log.d("TAG-DOC2", doc2.toString());
 
                 JSONObject fields = new JSONObject(doc2.getString("fields"));
-                // Log.d("TAG-FIELDS", fields.toString());
 
                 JSONObject naziv = new JSONObject(fields.getString("naziv"));
-                // Log.d("TAG-NAZIV", naziv.getString("stringValue"));
 
                 JSONObject indexTacnog = new JSONObject(fields.getString("indexTacnog"));
-                // Log.d("TAG-INDEX", indexTacnog.getString("integerValue"));
                 int indeks = indexTacnog.getInt("integerValue");
 
                 JSONObject odgovori = new JSONObject(fields.getString("odgovori"));
                 JSONObject arrayValue = new JSONObject(odgovori.getString("arrayValue"));
                 JSONArray values = arrayValue.getJSONArray("values");
-                // Log.d("TAG-ODGOVORI", values.toString());
 
                 Pitanje pitanje = new Pitanje();
 
@@ -241,13 +264,51 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
                 pitanje.setTekstPitanja(naziv.getString("stringValue"));
                 pitanja.add(pitanje);
             }
-            Log.d("TAG-SVA-PITANJA", pitanja.toString());
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
+
+    public void parsirajKategorije(String rezultat) {
+        try {
+            JSONObject obj = new JSONObject(rezultat);
+            JSONArray documents = obj.getJSONArray("documents");
+
+            for (int i = 0; i < documents.length(); i++) {
+                JSONObject doc = documents.getJSONObject(i);
+
+                JSONObject doc2 = new JSONObject(doc.getString("document"));
+
+                JSONObject fields = new JSONObject(doc2.getString("fields"));
+
+                JSONObject naziv = new JSONObject(fields.getString("naziv"));
+
+                JSONObject idIkonice = new JSONObject(fields.getString("idIkonice"));
+                int indeks = idIkonice.getInt("integerValue");
+
+                Kategorija kategorija = new Kategorija();
+                kategorija.setId(Integer.toString(indeks));
+                kategorija.setNaziv(naziv.getString("stringValue"));
+                kategorije.add(kategorija);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private String queryKvizovi() {
+        return "{" +
+                "    \"structuredQuery\": {" +
+                "        \"select\": { \"fields\": [ {\"fieldPath\": \"idKategorije\"}, {\"fieldPath\": \"naziv\"}, {\"fieldPath\": \"pitanja\"}] }," +
+                "        \"from\": [{\"collectionId\": \"Kvizovi\"}]," +
+                "       \"limit\": 1000 " +
+                "    }" +
+                "}";
+    }
 
     private String queryPitanja() {
         return "{" +
@@ -259,21 +320,14 @@ public class DohvatiKvizove2 extends AsyncTask<String, Void, Void> {
                 "}";
     }
 
-
-    private String queryFiltriraniKvizovi() {
-        return "{\n" +
-                "    \"structuredQuery\": {\n" +
-                "        \"where\" : {\n" +
-                "            \"fieldFilter\" : { \n" +
-                "                \"field\": {\"fieldPath\": \"idKategorije\"}, \n" +
-                "                \"op\":\"EQUAL\", \n" +
-                "                \"value\": {\"stringValue\": \"" + kategorija.getNaziv() + "\"}\n" +
-                "            }\n" +
-                "        },\n" +
-                "        \"select\": { \"fields\": [ {\"fieldPath\": \"idKategorije\"}, {\"fieldPath\": \"naziv\"}, {\"fieldPath\": \"pitanja\"}] },\n" +
-                "        \"from\": [{\"collectionId\": \"Kvizovi\"}],\n" +
-                "       \"limit\": 1000 \n" +
-                "    }\n" +
+    private String queryKategorije() {
+        return "{" +
+                "    \"structuredQuery\": {" +
+                "        \"select\": { \"fields\": [ {\"fieldPath\": \"idIkonice\"}, {\"fieldPath\": \"naziv\"}] }," +
+                "        \"from\": [{\"collectionId\": \"Kategorije\"}]," +
+                "       \"limit\": 1000 " +
+                "    }" +
                 "}";
     }
+
 }

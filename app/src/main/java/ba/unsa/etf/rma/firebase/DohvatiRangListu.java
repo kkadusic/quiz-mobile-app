@@ -1,8 +1,7 @@
-package ba.unsa.etf.rma.klase;
+package ba.unsa.etf.rma.firebase;
 
 import android.content.res.Resources;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.common.collect.Lists;

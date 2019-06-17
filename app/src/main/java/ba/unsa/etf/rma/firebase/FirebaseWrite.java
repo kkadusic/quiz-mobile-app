@@ -1,4 +1,4 @@
-package ba.unsa.etf.rma.klase;
+package ba.unsa.etf.rma.firebase;
 
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -24,10 +24,10 @@ import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
 
-public class FBWrite extends AsyncTask<String, Void, Void> {
+public class FirebaseWrite extends AsyncTask<String, Void, Void> {
     private Resources resources;
 
-    public FBWrite(Resources resources) {
+    public FirebaseWrite(Resources resources) {
         this.resources = resources;
     }
 

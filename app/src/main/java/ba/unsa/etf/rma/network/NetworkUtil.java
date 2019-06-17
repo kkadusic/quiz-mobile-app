@@ -1,4 +1,4 @@
-package ba.unsa.etf.rma.klase;
+package ba.unsa.etf.rma.network;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

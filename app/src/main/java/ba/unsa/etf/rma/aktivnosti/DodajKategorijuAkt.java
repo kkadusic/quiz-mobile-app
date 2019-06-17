@@ -19,7 +19,7 @@ import com.maltaisn.icondialog.IconDialog;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
-import ba.unsa.etf.rma.klase.FBWrite;
+import ba.unsa.etf.rma.firebase.FirebaseWrite;
 import ba.unsa.etf.rma.dto.Kategorija;
 
 public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback {
@@ -64,11 +64,11 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
                             setResult(RESULT_OK, i);
                             finish();
 
-                            FBWrite fb = new FBWrite(getResources());
+                            FirebaseWrite fb = new FirebaseWrite(getResources());
                             String poljeNaziv = fb.napraviPolje("naziv", novaKategorija.getNaziv());
                             String poljeId = fb.napraviPolje("idIkonice", Integer.parseInt(novaKategorija.getId()));
                             String dokument = fb.napraviDokument(poljeNaziv, poljeId);
-                            new FBWrite(getResources()).execute("Kategorije", novaKategorija.getNaziv(), dokument);
+                            new FirebaseWrite(getResources()).execute("Kategorije", novaKategorija.getNaziv(), dokument);
 
                         } else {
                             Toast.makeText(DodajKategorijuAkt.this, "Unesena kategorija već postoji!", Toast.LENGTH_SHORT).show();

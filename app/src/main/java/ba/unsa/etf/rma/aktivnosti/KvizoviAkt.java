@@ -26,7 +26,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,17 +39,17 @@ import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.MyAdapter;
 import ba.unsa.etf.rma.dto.Pitanje;
 import ba.unsa.etf.rma.dto.Ranglista;
-import ba.unsa.etf.rma.klase.DohvatiKvizove;
-import ba.unsa.etf.rma.klase.DohvatiKvizove2;
+import ba.unsa.etf.rma.firebase.DohvatiKvizove;
+import ba.unsa.etf.rma.firebase.DohvatiFiltriraneKvizove;
 import ba.unsa.etf.rma.dto.Kategorija;
 import ba.unsa.etf.rma.dto.Kviz;
-import ba.unsa.etf.rma.klase.DohvatiPitanja;
-import ba.unsa.etf.rma.klase.DohvatiRangListu;
-import ba.unsa.etf.rma.klase.NetworkUtil;
+import ba.unsa.etf.rma.firebase.DohvatiPitanja;
+import ba.unsa.etf.rma.firebase.DohvatiRangListu;
+import ba.unsa.etf.rma.network.NetworkUtil;
 import ba.unsa.etf.rma.sqlite.BazaOpenHelper;
 
 public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDohvatiKvizoveDone,
-        DohvatiKvizove2.IDohvatiFilterKvizoveDone, DohvatiPitanja.IDohvatiPitanjaDone,
+        DohvatiFiltriraneKvizove.IDohvatiFilterKvizoveDone, DohvatiPitanja.IDohvatiPitanjaDone,
         DohvatiRangListu.IDohvatiRangListeDone {
 
     static final int DODAJ_KVIZ = 100;
@@ -79,7 +78,6 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
             if ("android.net.conn.CONNECTIVITY_CHANGE".equals(intent.getAction())) {
                 if (status == NetworkUtil.NETWORK_STATUS_NOT_CONNECTED) {
                     Log.d("TAG-net", "Nema Interneta");
-                    // Toast.makeText(KvizoviAkt.this, "Nema Interneta!", Toast.LENGTH_SHORT).show();
                     ucitajIzSqlite();
                 } else {
                     Log.d("TAG-net", "Ima Interneta");
@@ -107,7 +105,6 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         registerReceiver(internetBroadCast, filter);
-        // todo unregister reciver
 
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED
@@ -119,11 +116,15 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         lvFooterView.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                Intent intent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
-                                                intent.putParcelableArrayListExtra("kategorije", kategorije);
-                                                intent.putParcelableArrayListExtra("kvizovi", sviKvizovi);
-                                                intent.putExtra("requestCode", DODAJ_KVIZ);
-                                                startActivityForResult(intent, DODAJ_KVIZ);
+                                                if (isNetworkAvailable()) {
+                                                    Intent intent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
+                                                    intent.putParcelableArrayListExtra("kategorije", kategorije);
+                                                    intent.putParcelableArrayListExtra("kvizovi", sviKvizovi);
+                                                    intent.putExtra("requestCode", DODAJ_KVIZ);
+                                                    startActivityForResult(intent, DODAJ_KVIZ);
+                                                } else {
+                                                    dajAlert("Uređaj nije konektovan na Internet!");
+                                                }
                                             }
                                         }
         );
@@ -131,12 +132,16 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         lvKvizovi.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
-                intent.putParcelableArrayListExtra("kategorije", kategorije);
-                intent.putParcelableArrayListExtra("kvizovi", sviKvizovi);
-                intent.putExtra("kviz", (Kviz) parent.getItemAtPosition(position));
-                intent.putExtra("requestCode", AZURIRAJ_KVIZ);
-                startActivityForResult(intent, AZURIRAJ_KVIZ);
+                if (isNetworkAvailable()) {
+                    Intent intent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
+                    intent.putParcelableArrayListExtra("kategorije", kategorije);
+                    intent.putParcelableArrayListExtra("kvizovi", sviKvizovi);
+                    intent.putExtra("kviz", (Kviz) parent.getItemAtPosition(position));
+                    intent.putExtra("requestCode", AZURIRAJ_KVIZ);
+                    startActivityForResult(intent, AZURIRAJ_KVIZ);
+                } else {
+                    dajAlert("Uređaj nije konektovan na Internet!");
+                }
                 return true;
             }
         });
@@ -178,7 +183,7 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
                         }
                     } else {
                         if (isNetworkAvailable()) {
-                            new DohvatiKvizove2(KvizoviAkt.this, getResources(), kategorija).execute();
+                            new DohvatiFiltriraneKvizove(KvizoviAkt.this, getResources(), kategorija).execute();
                         } else {
                             prikazaniKvizovi.clear();
                             for (Kviz k : sviKvizovi)
@@ -274,11 +279,9 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
 
         for (Kategorija k : kategorije)
             bazaOpenHelper.dodajKategoriju(k, db);
-        Log.d("KATEGORIJE", "Upisane sve kategorije u SQLite");
 
         for (Kviz k : listaKvizova)
             bazaOpenHelper.dodajKviz(k, db);
-        Log.d("KVIZOVI", "Upisani kvizovi u SQLite");
     }
 
     @Override
@@ -297,7 +300,6 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
 
 
     public void ucitajIzSqlite() {
-        System.out.println("UCITAVANJE IZ SQLITE");
         sviKvizovi.clear();
         prikazaniKvizovi.clear();
 
@@ -321,7 +323,6 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         bazaOpenHelper.obrisiSvaPitanja(db);
         for (Pitanje p : listaPitanja)
             bazaOpenHelper.dodajPitanje(p, db);
-        Log.d("PITANJA", "Upisana pitanja u SQLite");
     }
 
     @Override
@@ -329,16 +330,13 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         bazaOpenHelper.obrisiSveRangliste(db);
         for (Ranglista rl : rangliste)
             bazaOpenHelper.dodajRanglistu(rl, db);
-        Log.d("RANGLISTE", "Upisane rangliste u SQLite");
     }
 
 
     public void postaviAlarm(Kviz kviz) {
         Calendar rightNow = Calendar.getInstance();
         int satiTrenutno = rightNow.get(Calendar.HOUR_OF_DAY);
-        Log.d("VRIJEME", "Trenutno sati: " + satiTrenutno);
         int minuteTrenutno = rightNow.get(Calendar.MINUTE);
-        Log.d("VRIJEME", "Trenutno minuta: " + minuteTrenutno);
 
         if (kviz.getPitanja().size() > 0) {
             int potrebnoMinuta = (int) Math.ceil((double) kviz.getPitanja().size() / 2) + 1 + minuteTrenutno;
@@ -347,8 +345,6 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
                 satiTrenutno++;
                 potrebnoMinuta -= 60;
             }
-
-            Log.d("VRIJEME", "Postavi u " + satiTrenutno + " " + potrebnoMinuta);
 
             Intent i = new Intent(AlarmClock.ACTION_SET_ALARM);
             i.putExtra(AlarmClock.EXTRA_SKIP_UI, true);
@@ -396,23 +392,11 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
             }
 
 
-            System.out.println("Nazivi eventova");
-            for (String s : events) {
-                System.out.println(s);
-            }
-
-            System.out.println("Datumi pocetka eventova");
-            for (String timestamp : timestampoviPocetkaEventova) {
-                System.out.println(timestampToDate(Long.parseLong(timestamp)));
-            }
-
-
             int xMinuta = (int) Math.ceil((double) kviz.getPitanja().size() / 2);
 
             for (int i = 0; i < timestampoviPocetkaEventova.size(); i++) {
                 Date datumEventa = timestampToDate(Long.parseLong(timestampoviPocetkaEventova.get(i)));
                 int yMinuta = (int) brojMinutaDoPocetkaEventa(datumEventa);
-                System.out.println("BROJ MINUTA DO POCETKA EVENTA: " + yMinuta);
                 if (yMinuta > 0 && yMinuta < xMinuta) {
                     return yMinuta;
                 }
@@ -467,6 +451,5 @@ public class KvizoviAkt extends AppCompatActivity implements DohvatiKvizove.IDoh
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
 
 }

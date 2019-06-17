@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import ba.unsa.etf.rma.R;
-import ba.unsa.etf.rma.klase.FBWrite;
+import ba.unsa.etf.rma.firebase.FirebaseWrite;
 import ba.unsa.etf.rma.dto.Pitanje;
 
 public class DodajPitanjeAkt extends AppCompatActivity {
@@ -145,12 +145,12 @@ public class DodajPitanjeAkt extends AppCompatActivity {
                             setResult(RESULT_OK, i);
                             finish();
 
-                            FBWrite fb = new FBWrite(getResources());
+                            FirebaseWrite fb = new FirebaseWrite(getResources());
                             String poljeNaziv = fb.napraviPolje("naziv", novoPitanje.getNaziv());
                             String poljeOdgovori = fb.napraviPolje("odgovori", novoPitanje.getOdgovori());
                             String poljeIndex = fb.napraviPolje("indexTacnog", dajIndeksTacnog(novoPitanje));
                             String dokument = fb.napraviDokument(poljeNaziv, poljeIndex, poljeOdgovori);
-                            new FBWrite(getResources()).execute("Pitanja", novoPitanje.getNaziv(), dokument);
+                            new FirebaseWrite(getResources()).execute("Pitanja", novoPitanje.getNaziv(), dokument);
 
                         } else
                             Toast.makeText(DodajPitanjeAkt.this, "Pitanje sa istim imenom vec postoji!", Toast.LENGTH_SHORT).show();
