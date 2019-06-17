@@ -56,14 +56,14 @@ public class PitanjeFrag extends Fragment {
         // Required empty public constructor
     }
 
-    public interface OnCompleteListener{
+    public interface OnCompleteListener {
         void onComplete(String procenatTacnih, String imeIgraca);
     }
 
 
     private OnZamijenaListener mZamjena;
 
-    public interface OnZamijenaListener{
+    public interface OnZamijenaListener {
         void onCompleteZamjena();
     }
 
@@ -98,6 +98,7 @@ public class PitanjeFrag extends Fragment {
         Intent intent = getActivity().getIntent();
         final Kviz k = intent.getParcelableExtra("kvizIgraj");
 
+
         if (k.getPitanja().size() != 0) {
             tekstPitanja.setText(k.getPitanja().get(0).getNaziv());
 
@@ -114,12 +115,20 @@ public class PitanjeFrag extends Fragment {
                 public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
                     final Handler handler = new Handler();
 
+                    int pozicijaTacnogOdgovora = 0;
+                    for (int i = 0; i < odgovori.size(); i++) {
+                        if (odgovori.get(i).equals(k.getPitanja().get(BROJAC_PITANJA).getTacan())) {
+                            pozicijaTacnogOdgovora = i;
+                            break;
+                        }
+                    }
+
                     if (odgovori.get(position).equals(k.getPitanja().get(BROJAC_PITANJA).getTacan())) {
-                        view.setBackgroundColor(GREEN);
+                        view.setBackgroundColor(getResources().getColor(R.color.zelena));
                         BROJAC_TACNIH++;
                     } else {
-                        view.setBackgroundColor(RED);
-                        // Dodati da stavi zeleno na tacan
+                        view.setBackgroundColor(getResources().getColor(R.color.crvena));
+                        odgovoriPitanja.getChildAt(pozicijaTacnogOdgovora).setBackgroundColor(getResources().getColor(R.color.zelena));
                     }
 
                     double procenat = ((double) BROJAC_TACNIH / (BROJAC_PITANJA + 1)) * 100;
@@ -139,6 +148,7 @@ public class PitanjeFrag extends Fragment {
                     transection.replace(R.id.informacijePlace, mfragment);
                     transection.commit();
 
+                    final int finalPozicijaTacnogOdgovora = pozicijaTacnogOdgovora;
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -146,8 +156,8 @@ public class PitanjeFrag extends Fragment {
 
                             if (BROJAC_PITANJA != k.getPitanja().size()) {
                                 view.setBackgroundColor(0);
+                                odgovoriPitanja.getChildAt(finalPozicijaTacnogOdgovora).setBackgroundColor(0);
                                 odgovori.clear();
-
 
                                 tekstPitanja.setText(k.getPitanja().get(BROJAC_PITANJA).getNaziv());
                                 for (int i = 0; i < k.getPitanja().get(BROJAC_PITANJA).getOdgovori().size(); i++) {
@@ -193,9 +203,7 @@ public class PitanjeFrag extends Fragment {
 
                 }
             });
-        }
-
-        else {
+        } else {
             dajAlert("Kviz kojeg igrate nema pitanja!");
         }
 
@@ -207,7 +215,7 @@ public class PitanjeFrag extends Fragment {
         final int firstListItemPosition = listView.getFirstVisiblePosition();
         final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
 
-        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+        if (pos < firstListItemPosition || pos > lastListItemPosition) {
             return listView.getAdapter().getView(pos, null, listView);
         } else {
             final int childIndex = pos - firstListItemPosition;
