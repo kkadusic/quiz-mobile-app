@@ -34,6 +34,7 @@ import ba.unsa.etf.rma.klase.DohvatiPitanja;
 import ba.unsa.etf.rma.dto.Kategorija;
 import ba.unsa.etf.rma.dto.Kviz;
 import ba.unsa.etf.rma.dto.Pitanje;
+import ba.unsa.etf.rma.klase.ObrisiKviz;
 
 import static ba.unsa.etf.rma.aktivnosti.KvizoviAkt.AZURIRAJ_KVIZ;
 
@@ -133,6 +134,10 @@ public class DodajKvizAkt extends AppCompatActivity implements DohvatiPitanja.ID
                             }
                             if (naziviPitanja.size() == 0) naziviPitanja.add("");
 
+                            if (intent.getIntExtra("requestCode", 0) == AZURIRAJ_KVIZ) {
+                                if (!staroImeKviza.equals(trenutniKviz.getNaziv()))
+                                    new ObrisiKviz(getResources()).execute(staroImeKviza);
+                            }
 
                             FBWrite fb = new FBWrite(getResources());
                             String nazivKviza = fb.napraviPolje("naziv", trenutniKviz.getNaziv());

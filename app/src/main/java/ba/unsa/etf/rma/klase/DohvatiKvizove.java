@@ -163,7 +163,6 @@ public class DohvatiKvizove extends AsyncTask<String, Void, Void> {
         }
     }
 
-
     private String convertStreamToString(InputStream is) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
