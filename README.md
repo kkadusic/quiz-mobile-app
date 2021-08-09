@@ -1,7 +1,8 @@
 ## QuizMe
 
 QuizMe is an android application for playing and creating quizzes. It is developed using Java with Cloud Firestore (online mode) and SQLite (offline mode). 
-After completing the quiz, users can choose whether they want their score to be saved so they can be ranked relative to other players.
+After completing the quiz, users can choose whether they want their score to be saved so they can be ranked relative to other players. Quizzes can also
+be imported via CSV file.
 
 ![QuizMe-screenshots](https://user-images.githubusercontent.com/44180058/128637702-a771cb15-d151-4885-8e29-2bae8f84b0b4.jpeg)
 
